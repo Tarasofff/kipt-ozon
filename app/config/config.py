@@ -14,7 +14,6 @@ class AuthJWT(BaseModel):
 
 class ApiV1Prefix(BaseModel):
     global_prefix: str = "/v1"
-    auth: str = "/auth"
     nurse: str = "/nurse"
     doctor: str = "/doctor"
     patient: str = "/patient"

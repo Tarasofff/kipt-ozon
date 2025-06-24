@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import date
 
@@ -11,6 +12,15 @@ class UserSchema(BaseModel):
     phone: str
     email: EmailStr | None = None
     date_of_birth: date
-    is_active: bool
-    role_id: int
     password: str
+
+
+class UpdateUserSchema(BaseModel):
+    first_name: Optional[str] = None
+    middle_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    date_of_birth: Optional[date] = None
+    password: Optional[str] = None
+    role_id: Optional[int] = None

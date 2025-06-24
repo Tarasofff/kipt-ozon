@@ -1,5 +1,7 @@
 import bcrypt
 
+from app.schemas.user import UserSchema
+
 
 def hash_password_str(
     password: str,
@@ -11,3 +13,7 @@ def hash_password_str(
 
 def validate_password_str(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+
+
+async def create(user: UserSchema):
+    pass

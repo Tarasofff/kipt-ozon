@@ -2,6 +2,7 @@ from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.db.models.user import User
+from app.schemas.user import UpdateUserSchema, UserSchema
 
 
 class UserRepository:
@@ -24,11 +25,6 @@ class UserRepository:
         users = result.scalars().all()
         return list(users)
 
-    async def create(self, user: User) -> User:
-        self.session.add(user)
-        await self.session.flush()
-        return user
-
     async def set_inactive(self, user_id: int) -> None:
         stmt = (
             update(User)
@@ -39,13 +35,25 @@ class UserRepository:
         await self.session.execute(stmt)
         await self.session.commit()
 
-    # async def update(self, user_id: int, **kwargs) -> Optional[User]:
-    #     stmt = (
-    #         update(User)
-    #         .where(User.id == user_id)
-    #         .values(**kwargs)
-    #         .execution_options(synchronize_session="fetch")
-    #     )
-    #     await self.session.execute(stmt)
-    #     await self.session.commit()
-    #     return await self.get_by_id(user_id)
+    async def create(self, user_data: UserSchema) -> User:
+        user = User(**user_data.model_dump())
+        self.session.add(user)
+        await self.session.flush()
+        return user
+
+    async def update(self, user_id: int, user_data: UpdateUserSchema) -> Optional[User]:
+        update_values = user_data.model_dump(exclude_unset=True)
+
+        if not update_values:
+            return await self.get_by_id(user_id)
+
+        stmt = (
+            update(User)
+            .where(User.id == user_id)
+            .values(**update_values)
+            .execution_options(synchronize_session="fetch")
+        )
+
+        await self.session.execute(stmt)
+        await self.session.commit()
+        return await self.get_by_id(user_id)
