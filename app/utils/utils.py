@@ -1,10 +1,8 @@
 from datetime import date, datetime
-from typing import List, Union
+from typing import Union
 from fastapi.routing import APIRoute
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.config.config import app_config
-
 
 @asynccontextmanager
 async def log_registered_routes(app: FastAPI):
@@ -15,14 +13,6 @@ async def log_registered_routes(app: FastAPI):
             print(f"{methods:10s} | {route.path}")
     print()
     yield
-
-
-def get_user_role_list() -> List[str]:
-    return [
-        value
-        for key, value in vars(type(app_config.user_role)).items()
-        if key.isupper()
-    ]
 
 
 def to_date(value: Union[str, datetime, date]) -> date:

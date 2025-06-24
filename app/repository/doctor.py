@@ -1,32 +1,37 @@
-from typing import Sequence
+from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.db.models import Doctor
-from typing import Any
+from sqlalchemy import select, update
+from app.db.models.doctor import Doctor
 
 
 class DoctorRepository:
-    def __init__(self, session: AsyncSession) -> None:
-        self.session: AsyncSession = session
 
-    async def get_all(self) -> Sequence[Doctor]:
-        result = await self.session.execute(select(Doctor))
-        return result.scalars().all()
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    async def get_by_id(self, doctor_id: int) -> Doctor | None:
-        result = await self.session.execute(select(Doctor).where(Doctor.id == doctor_id))
+    async def get_by_id(self, doctor_id: int) -> Optional[Doctor]:
+        stmt = select(Doctor).where(Doctor.id == doctor_id)
+        result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def create(self, doctor_data: Any) -> Doctor:
-        doctor: Doctor = Doctor(**doctor_data.model_dump())
+    async def get_all(self, offset: int = 0, limit: int = 100) -> List[Doctor]:
+        stmt = select(Doctor).offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        doctors = result.scalars().all()
+        return list(doctors)
+
+    async def create(self, doctor: Doctor) -> Doctor:
         self.session.add(doctor)
-        await self.session.commit()
-        await self.session.refresh(doctor)
+        await self.session.flush()
         return doctor
 
-    async def update(self, doctor: Doctor, doctor_data: Any) -> Doctor:
-        for field, value in doctor_data.model_dump(exclude_unset=True).items():
-            setattr(doctor, field, value)
-        await self.session.commit()
-        await self.session.refresh(doctor)
-        return doctor
+    # async def update(self, doctor_id: int, **kwargs) -> Optional[Doctor]:
+    #     stmt = (
+    #         update(Doctor)
+    #         .where(Doctor.id == doctor_id)
+    #         .values(**kwargs)
+    #         .execution_options(synchronize_session="fetch")
+    #     )
+    #     await self.session.execute(stmt)
+    #     await self.session.commit()
+    #     return await self.get_by_id(doctor_id)

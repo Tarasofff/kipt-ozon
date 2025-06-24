@@ -1,15 +1,15 @@
-from sqlalchemy import select
+from app.repository.role import RoleRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.models import Role
-from app.utils.utils import get_user_role_list
+from app.config.config import app_config
 
 
 async def seed_roles(session: AsyncSession):
-    result = await session.execute(select(Role.name))
-    existing_roles = {row[0] for row in result.fetchall()}
+    role_repo = RoleRepository(session)
 
-    for role_name in get_user_role_list():
+    existing_roles = {role.name for role in await role_repo.get_all()}
+
+    for role_name in app_config.user_role.list():
         if role_name not in existing_roles:
-            session.add(Role(name=role_name))
+            await role_repo.create(role_name)
 
     await session.commit()

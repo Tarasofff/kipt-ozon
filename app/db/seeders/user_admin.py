@@ -1,25 +1,23 @@
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.config import app_config
-from app.db.models import User, Role
+from app.db.models.user import User
 from app.services.user import hash_password_str
 from app.utils.utils import to_date
+from app.repository.user import UserRepository
+from app.repository.role import RoleRepository
 
 
 async def seed_admin_user(session: AsyncSession):
-    result = await session.execute(
-        select(User).where(User.phone == app_config.user_admin_config.phone)
-    )
+    user_repo = UserRepository(session)
+    role_repo = RoleRepository(session)
 
-    existing_admin = result.scalar_one_or_none()
-
+    existing_admin = await user_repo.get_by_phone(app_config.user_admin_config.phone)
     if existing_admin:
         return
 
-    role_result = await session.execute(
-        select(Role).where(Role.name == app_config.user_role.ADMIN)
-    )
-    admin_role = role_result.scalar_one()
+    admin_role = await role_repo.get_by_name(app_config.user_role.ADMIN)
+    if not admin_role:
+        raise ValueError("Admin role not found")
 
     user = User(
         first_name=app_config.user_admin_config.first_name,
@@ -32,6 +30,5 @@ async def seed_admin_user(session: AsyncSession):
         role_id=admin_role.id,
     )
 
-    session.add(user)
-
+    await user_repo.create(user)
     await session.commit()

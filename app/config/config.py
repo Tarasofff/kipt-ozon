@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -22,9 +22,17 @@ class ApiV1Prefix(BaseModel):
 
 
 class UserRole:
-    ADMIN = "admin"
-    DOCTOR = "doctor"
-    NURSE = "nurse"
+    ADMIN: str = "admin"
+    DOCTOR: str = "doctor"
+    NURSE: str = "nurse"
+
+    @classmethod
+    def list(cls) -> list[str]:
+        return [
+            value
+            for key, value in vars(cls).items()
+            if key.isupper() and isinstance(value, str)
+        ]
 
 
 class UserAdminConfig(BaseSettings):
