@@ -2,8 +2,12 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import date
 
+from app.db.models import User
+from app.schemas import TokenSchema
+from app.utils.utils import PasswordHashMixin  # ,BaseModelExcludeNone
 
-class UserSchema(BaseModel):
+
+class UserSchema(PasswordHashMixin, BaseModel):
     model_config = ConfigDict(strict=True)
 
     first_name: str
@@ -15,7 +19,9 @@ class UserSchema(BaseModel):
     password: str
 
 
-class UpdateUserSchema(BaseModel):
+class UpdateUserSchema(PasswordHashMixin, BaseModel):  # BaseModelExcludeNone
+    model_config = ConfigDict(strict=True)
+
     first_name: Optional[str] = None
     middle_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -24,3 +30,10 @@ class UpdateUserSchema(BaseModel):
     date_of_birth: Optional[date] = None
     password: Optional[str] = None
     role_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class CreateUserSchema(TokenSchema, BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    user: User

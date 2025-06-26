@@ -5,11 +5,12 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent.parent
 
 
-class AuthJWT(BaseModel):
+class JwtConfig(BaseModel):
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 1  # 1440 24h
+    token_type: str = "Bearer"
 
 
 class ApiV1Prefix(BaseModel):
@@ -75,7 +76,7 @@ class AppConfig(BaseSettings):
 
     api_v1_prefix: ApiV1Prefix = ApiV1Prefix()
 
-    auth_jwt: AuthJWT = AuthJWT()
+    jwt_config: JwtConfig = JwtConfig()
 
     user_role: UserRole = UserRole()
 

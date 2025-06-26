@@ -1,38 +1,46 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.config import app_config
-from app.schemas.user import UpdateUserSchema, UserSchema
-from app.services.user import hash_password_str
-from app.utils.utils import to_date
-from app.repository.user import UserRepository
 from app.repository.role import RoleRepository
+from app.schemas.user import UpdateUserSchema, UserSchema
+from app.services.user import UserService
+from app.utils.utils import to_date
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def seed_admin_user(session: AsyncSession):
-    user_repo = UserRepository(session)
-    role_repo = RoleRepository(session)
+class UserAdminSeeder:
+    def __init__(
+        self,
+        user_service: UserService,
+        role_repo: RoleRepository,
+        session: AsyncSession,
+    ):
+        self.user_service = user_service
+        self.role_repo = role_repo
+        self.session = session
 
-    existing_admin = await user_repo.get_by_phone(app_config.user_admin_config.phone)
-    if existing_admin:
-        return
+    async def seed(self):
+        async with self.session.begin():
+            existing_admin = await self.user_service.get_by_phone(
+                app_config.user_admin_config.phone
+            )
 
-    admin_role = await role_repo.get_by_name(app_config.user_role.ADMIN)
-    if not admin_role:
-        raise ValueError("Admin role not found")
+            if existing_admin:
+                return
 
-    user_data = UserSchema(
-        first_name=app_config.user_admin_config.first_name,
-        middle_name=app_config.user_admin_config.middle_name,
-        last_name=app_config.user_admin_config.last_name,
-        phone=app_config.user_admin_config.phone,
-        email=app_config.user_admin_config.email,
-        date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
-        password=hash_password_str(app_config.user_admin_config.password),
-    )
+            admin_role = await self.role_repo.get_by_name(app_config.user_role.ADMIN)
+            if not admin_role:
+                raise ValueError("Admin role not found")
 
-    new_user = await user_repo.create(user_data)
+            user_data = UserSchema(
+                first_name=app_config.user_admin_config.first_name,
+                middle_name=app_config.user_admin_config.middle_name,
+                last_name=app_config.user_admin_config.last_name,
+                phone=app_config.user_admin_config.phone,
+                email=app_config.user_admin_config.email,
+                date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
+                password=app_config.user_admin_config.password,
+            )
 
-    await user_repo.update(
-        user_id=new_user.id, user_data=UpdateUserSchema(role_id=admin_role.id)
-    )
+            new_user = await self.user_service.create(user_data)
 
-    await session.commit()
+            update_user_data = UpdateUserSchema(role_id=admin_role.id)
+            await self.user_service.update(new_user.user.id, update_user_data)
