@@ -33,7 +33,7 @@ class UpdateUserSchema(PasswordHashMixin, BaseModel):  # BaseModelExcludeNone
     is_active: Optional[bool] = None
 
 
-class CreateUserSchema(TokenSchema, BaseModel):
+class LoginUserSchema(TokenSchema, BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     user: User

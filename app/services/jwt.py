@@ -3,6 +3,7 @@ from typing import Any, Dict, Union, Optional
 import jwt
 
 from app.config.config import app_config
+from app.db.models.user import User
 from app.schemas.token import TokenSchema
 
 
@@ -48,3 +49,10 @@ class JWTService:
             self.public_key,
             algorithms=[self.algorithm],
         )
+
+    def get_payload(self, user: User):
+        return {
+            "sub": str(user.id),
+            "phone": user.phone,
+            "role": user.role.name if user.role else None,
+        }
