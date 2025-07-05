@@ -2,8 +2,9 @@ from app.config.config import app_config
 from app.repository.role import RoleRepository
 from app.schemas.user import UpdateUserSchema, UserSchema
 from app.services.user import UserService
-from app.utils.utils import to_date
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.utils.utils import to_date
 
 
 class UserAdminSeeder:
@@ -43,4 +44,4 @@ class UserAdminSeeder:
             new_user = await self.user_service.create(user_data)
 
             update_user_data = UpdateUserSchema(role_id=admin_role.id)
-            await self.user_service.update(new_user.user.id, update_user_data)
+            await self.user_service.update(new_user.id, update_user_data)

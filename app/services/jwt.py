@@ -3,8 +3,8 @@ from typing import Any, Dict, Union, Optional
 import jwt
 
 from app.config.config import app_config
-from app.db.models.user import User
 from app.schemas.token import TokenSchema
+from app.db.models import User
 
 
 class JWTService:

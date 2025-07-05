@@ -21,6 +21,15 @@ class ApiV1Prefix(BaseModel):
     user: str = "/user"
 
 
+class HttpMethods(BaseModel):
+    POST: str = "POST"
+    GET: str = "GET"
+    PUT: str = "PUT"
+    OPTIONS: str = "OPTIONS"
+    PATCH: str = "PATCH"
+    DELETE: str = "DELETE"
+
+
 class UserRole:
     ADMIN: str = "admin"
     DOCTOR: str = "doctor"
@@ -42,7 +51,7 @@ class UserAdminConfig(BaseSettings):
     phone: str = ""
     email: EmailStr = "example@email.com"
     password: str = ""
-    date_of_birth: str = ""
+    date_of_birth: str = "03.12.2000"
 
     model_config = SettingsConfigDict(env_prefix="USER_ADMIN_")
 
@@ -83,6 +92,8 @@ class AppConfig(BaseSettings):
     user_admin_config: UserAdminConfig = UserAdminConfig()
 
     database_config: DatabaseConfig = DatabaseConfig()
+
+    http_methods: HttpMethods = HttpMethods()
 
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 

@@ -5,7 +5,6 @@ from app.db.seeders.user_admin import UserAdminSeeder
 from app.repository.role import RoleRepository
 from app.services.jwt import JWTService
 from app.services.user import UserService
-from app.repository.user import UserRepository
 
 
 async def main():
@@ -14,10 +13,9 @@ async def main():
         role_seeder = RoleSeeder(session)
         await role_seeder.seed()
 
-        user_repo = UserRepository(session)
         role_repo = RoleRepository(session)
         jwt_service = JWTService()
-        user_service = UserService(user_repo, jwt_service)
+        user_service = UserService(jwt_service, session)
 
         user_admin_seeder = UserAdminSeeder(
             user_service=user_service,

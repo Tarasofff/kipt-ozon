@@ -18,8 +18,6 @@ class Nurse(IdIntPkMixin, TimestampMixin, Base):
         Integer, nullable=False, default=0, server_default=text("0")
     )
 
-    biography: Mapped[str] = mapped_column(String(1024), nullable=True)
-
     session: Mapped[list[Session]] = relationship(back_populates="nurse")
 
     user: Mapped[User] = relationship(back_populates="nurse")

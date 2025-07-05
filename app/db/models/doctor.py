@@ -23,8 +23,6 @@ class Doctor(IdIntPkMixin, TimestampMixin, Base):
         server_default=text("0"),
     )
 
-    biography: Mapped[str] = mapped_column(String(1024), nullable=True)
-
     patients: Mapped[list[Patient]] = relationship(
         secondary=PatientDoctor, back_populates="doctors"
     )

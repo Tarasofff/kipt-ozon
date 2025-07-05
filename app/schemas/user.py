@@ -1,25 +1,24 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import date
+from app.schemas.token import TokenSchema
+from app.utils.bcrypt import PasswordHashMixin
+from app.utils.utils import DateParser
 
-from app.db.models import User
-from app.schemas import TokenSchema
-from app.utils.utils import PasswordHashMixin  # ,BaseModelExcludeNone
 
-
-class UserSchema(PasswordHashMixin, BaseModel):
+class UserSchema(PasswordHashMixin, DateParser, BaseModel):
     model_config = ConfigDict(strict=True)
 
     first_name: str
     middle_name: str
     last_name: str
     phone: str
-    email: EmailStr | None = None
+    email: Optional[EmailStr]
     date_of_birth: date
     password: str
 
 
-class UpdateUserSchema(PasswordHashMixin, BaseModel):  # BaseModelExcludeNone
+class UpdateUserSchema(PasswordHashMixin, DateParser, BaseModel):
     model_config = ConfigDict(strict=True)
 
     first_name: Optional[str] = None
@@ -36,4 +35,12 @@ class UpdateUserSchema(PasswordHashMixin, BaseModel):  # BaseModelExcludeNone
 class LoginUserSchema(TokenSchema, BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    user: User
+    id: int
+    first_name: str
+    middle_name: str
+    last_name: str
+    phone: str
+    email: Optional[EmailStr]
+    date_of_birth: date
+    is_active: bool
+    role_id: Optional[int]
