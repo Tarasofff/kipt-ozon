@@ -26,4 +26,12 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
         Integer, ForeignKey(f"{TableNames.PATIENT}.id"), nullable=False
     )
 
+    post_number: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    session_duration_ms: Mapped[int] = mapped_column(
+        Integer, nullable=False, comment="Session duration in ms"
+    )
+
+    session_number: Mapped[int] = mapped_column(Integer, nullable=False)
+
     patient: Mapped[Patient] = relationship(back_populates="session")

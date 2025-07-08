@@ -32,7 +32,6 @@ class HttpMethods(BaseModel):
 
 class UserRole:
     ADMIN: str = "admin"
-    DOCTOR: str = "doctor"
     NURSE: str = "nurse"
 
     @classmethod

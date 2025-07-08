@@ -10,7 +10,7 @@ from app.db.table_names import TableNames
 
 
 if TYPE_CHECKING:
-    from app.db.models import Nurse, Doctor, Role
+    from app.db.models import Nurse, Role
 
 
 class User(IdIntPkMixin, TimestampMixin, Base):
@@ -40,8 +40,6 @@ class User(IdIntPkMixin, TimestampMixin, Base):
     password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
 
     nurse: Mapped[Nurse] = relationship(back_populates="user")
-
-    doctor: Mapped[Doctor] = relationship(back_populates="user")
 
     role_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f"{TableNames.ROLE}.id"), nullable=True
