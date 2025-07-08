@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
@@ -16,6 +16,18 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
 
     notes: Mapped[str] = mapped_column(String(64), nullable=False)
 
+    session_number: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    post_number: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    session_duration_ms: Mapped[int] = mapped_column(
+        Integer, nullable=False, comment="Session duration in ms"
+    )
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False, server_default=text("false")
+    )
+
     nurse_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f"{TableNames.NURSE}.id"), nullable=False
     )
@@ -25,13 +37,5 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
     patient_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f"{TableNames.PATIENT}.id"), nullable=False
     )
-
-    post_number: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    session_duration_ms: Mapped[int] = mapped_column(
-        Integer, nullable=False, comment="Session duration in ms"
-    )
-
-    session_number: Mapped[int] = mapped_column(Integer, nullable=False)
 
     patient: Mapped[Patient] = relationship(back_populates="session")
