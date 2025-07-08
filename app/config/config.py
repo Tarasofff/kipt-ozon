@@ -21,15 +21,6 @@ class ApiV1Prefix(BaseModel):
     user: str = "/user"
 
 
-class HttpMethods(BaseModel):
-    POST: str = "POST"
-    GET: str = "GET"
-    PUT: str = "PUT"
-    OPTIONS: str = "OPTIONS"
-    PATCH: str = "PATCH"
-    DELETE: str = "DELETE"
-
-
 class UserRole:
     ADMIN: str = "admin"
     NURSE: str = "nurse"
@@ -79,20 +70,11 @@ class DatabaseConfig(BaseSettings):
 class AppConfig(BaseSettings):
     app_name: str = "Ozon"
     debug: bool = False
-    host: str = "127.0.0.1"
-    port: int = 5000
-
     api_v1_prefix: ApiV1Prefix = ApiV1Prefix()
-
     jwt_config: JwtConfig = JwtConfig()
-
     user_role: UserRole = UserRole()
-
     user_admin_config: UserAdminConfig = UserAdminConfig()
-
     database_config: DatabaseConfig = DatabaseConfig()
-
-    http_methods: HttpMethods = HttpMethods()
 
     model_config = SettingsConfigDict(env_file=".env", extra="allow")
 

@@ -5,12 +5,11 @@ from datetime import date
 from sqlalchemy import Integer, String, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
-from app.db.models.patient_doctor import PatientDoctor
 from app.db.table_names import TableNames
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 if TYPE_CHECKING:
-    from app.db.models import Doctor, Session
+    from app.db.models import Session, PatientDoctorDiagnose
 
 
 class Patient(IdIntPkMixin, TimestampMixin, Base):
@@ -30,8 +29,8 @@ class Patient(IdIntPkMixin, TimestampMixin, Base):
 
     planned_session_count: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    doctors: Mapped[list[Doctor]] = relationship(
-        secondary=PatientDoctor, back_populates="patients"
-    )
-
     session: Mapped[list[Session]] = relationship(back_populates="patient")
+
+    patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(
+        back_populates="patient"
+    )

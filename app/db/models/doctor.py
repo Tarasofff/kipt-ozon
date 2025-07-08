@@ -7,11 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.table_names import TableNames
 from app.db.models.base import Base
-from app.db.models.patient_doctor import PatientDoctor
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 if TYPE_CHECKING:
-    from app.db.models import Patient
+    from app.db.models import PatientDoctorDiagnose
 
 
 class Doctor(IdIntPkMixin, TimestampMixin, Base):
@@ -36,6 +35,6 @@ class Doctor(IdIntPkMixin, TimestampMixin, Base):
 
     work_since: Mapped[date] = mapped_column(Date, nullable=True)
 
-    patients: Mapped[list[Patient]] = relationship(
-        secondary=PatientDoctor, back_populates="doctors"
+    patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(
+        back_populates="doctor"
     )
