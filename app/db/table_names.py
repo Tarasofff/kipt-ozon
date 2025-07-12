@@ -7,3 +7,8 @@ class TableNames:
     USER = "user"
     ROLE = "role"
     DIAGNOSE = "diagnose"
+    COUNTRY = "country"
+    HOSPITAL = "hospital"
+    CITY = "city"
+    ADDRESS = "address"
+    POST = "post"

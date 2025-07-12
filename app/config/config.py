@@ -24,6 +24,7 @@ class ApiV1Prefix(BaseModel):
 class UserRole:
     ADMIN: str = "admin"
     NURSE: str = "nurse"
+    DOCTOR: str = "doctor"
 
     @classmethod
     def list(cls) -> list[str]:

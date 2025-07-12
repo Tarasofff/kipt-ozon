@@ -6,5 +6,10 @@ from .nurse import Nurse
 from .user import User
 from .role import Role
 from .diagnose import Diagnose
+from .city import City
+from .country import Country
+from .address import Address
+from .hospital import Hospital
+from .post import Post
 
 from .base import Base
