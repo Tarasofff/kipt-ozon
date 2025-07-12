@@ -1,20 +1,20 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
 
-class AuthJWT(BaseModel):
+class JwtConfig(BaseModel):
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
     public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 1  # 1440 24h
+    token_type: str = "Bearer"
 
 
 class ApiV1Prefix(BaseModel):
     global_prefix: str = "/v1"
-    auth: str = "/auth"
     nurse: str = "/nurse"
     doctor: str = "/doctor"
     patient: str = "/patient"
@@ -22,9 +22,17 @@ class ApiV1Prefix(BaseModel):
 
 
 class UserRole:
-    ADMIN = "admin"
-    DOCTOR = "doctor"
-    NURSE = "nurse"
+    ADMIN: str = "admin"
+    NURSE: str = "nurse"
+    DOCTOR: str = "doctor"
+
+    @classmethod
+    def list(cls) -> list[str]:
+        return [
+            value
+            for key, value in vars(cls).items()
+            if key.isupper() and isinstance(value, str)
+        ]
 
 
 class UserAdminConfig(BaseSettings):
@@ -34,7 +42,7 @@ class UserAdminConfig(BaseSettings):
     phone: str = ""
     email: EmailStr = "example@email.com"
     password: str = ""
-    date_of_birth: str = ""
+    date_of_birth: str = "03.12.2000"
 
     model_config = SettingsConfigDict(env_prefix="USER_ADMIN_")
 
@@ -63,17 +71,10 @@ class DatabaseConfig(BaseSettings):
 class AppConfig(BaseSettings):
     app_name: str = "Ozon"
     debug: bool = False
-    host: str = "127.0.0.1"
-    port: int = 5000
-
     api_v1_prefix: ApiV1Prefix = ApiV1Prefix()
-
-    auth_jwt: AuthJWT = AuthJWT()
-
+    jwt_config: JwtConfig = JwtConfig()
     user_role: UserRole = UserRole()
-
     user_admin_config: UserAdminConfig = UserAdminConfig()
-
     database_config: DatabaseConfig = DatabaseConfig()
 
     model_config = SettingsConfigDict(env_file=".env", extra="allow")

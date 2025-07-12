@@ -1,37 +1,47 @@
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.config import app_config
-from app.db.models import User, Role
-from app.services.user import hash_password_str
+from app.repository.role import RoleRepository
+from app.schemas.user import UpdateUserSchema, UserSchema
+from app.services.user import UserService
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.utils.utils import to_date
 
 
-async def seed_admin_user(session: AsyncSession):
-    result = await session.execute(
-        select(User).where(User.phone == app_config.user_admin_config.phone)
-    )
+class UserAdminSeeder:
+    def __init__(
+        self,
+        user_service: UserService,
+        role_repo: RoleRepository,
+        session: AsyncSession,
+    ):
+        self.user_service = user_service
+        self.role_repo = role_repo
+        self.session = session
 
-    existing_admin = result.scalar_one_or_none()
+    async def seed(self):
+        async with self.session.begin():
+            existing_admin = await self.user_service.get_by_phone(
+                app_config.user_admin_config.phone
+            )
 
-    if existing_admin:
-        return
+            if existing_admin:
+                return
 
-    role_result = await session.execute(
-        select(Role).where(Role.name == app_config.user_role.ADMIN)
-    )
-    admin_role = role_result.scalar_one()
+            admin_role = await self.role_repo.get_by_name(app_config.user_role.ADMIN)
+            if not admin_role:
+                raise ValueError("Admin role not found")
 
-    user = User(
-        first_name=app_config.user_admin_config.first_name,
-        middle_name=app_config.user_admin_config.middle_name,
-        last_name=app_config.user_admin_config.last_name,
-        phone=app_config.user_admin_config.phone,
-        email=app_config.user_admin_config.email,
-        date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
-        password=hash_password_str(app_config.user_admin_config.password),
-        role_id=admin_role.id,
-    )
+            user_data = UserSchema(
+                first_name=app_config.user_admin_config.first_name,
+                middle_name=app_config.user_admin_config.middle_name,
+                last_name=app_config.user_admin_config.last_name,
+                phone=app_config.user_admin_config.phone,
+                email=app_config.user_admin_config.email,
+                date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
+                password=app_config.user_admin_config.password,
+            )
 
-    session.add(user)
+            new_user = await self.user_service.create(user_data)
 
-    await session.commit()
+            update_user_data = UpdateUserSchema(role_id=admin_role.id)
+            await self.user_service.update(new_user.id, update_user_data)

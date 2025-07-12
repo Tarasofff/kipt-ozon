@@ -1,39 +1,58 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, Union, Optional
 import jwt
+
 from app.config.config import app_config
+from app.schemas.token import TokenSchema
+from app.db.models import User
 
 
-def encode_jwt(
-    payload: dict,
-    private_key: str = app_config.auth_jwt.private_key_path.read_text(),
-    algorithm: str = app_config.auth_jwt.algorithm,
-    expire_minutes: int = app_config.auth_jwt.access_token_expire_minutes,
-    expire_timedelta: timedelta | None = None,
-) -> str:
-    to_encode = payload.copy()
-    now = datetime.now(timezone.utc)
-    if expire_timedelta:
-        expire = now + expire_timedelta
-    else:
-        expire = now + timedelta(minutes=expire_minutes)
-    to_encode.update(
-        exp=expire,
-        iat=now,
-    )
-    return jwt.encode(
-        to_encode,
-        private_key,
-        algorithm=algorithm,
-    )
+class JWTService:
+    def __init__(
+        self,
+    ):
+        self.private_key = app_config.jwt_config.private_key_path.read_text()
+        self.public_key = app_config.jwt_config.public_key_path.read_text()
+        self.algorithm = app_config.jwt_config.algorithm
+        self.access_token_expire_minutes = (
+            app_config.jwt_config.access_token_expire_minutes
+        )
+        self.token_type = app_config.jwt_config.token_type
 
+    def encode(
+        self,
+        payload: Dict[str, Any],
+        expire_timedelta: Optional[timedelta] = None,
+    ) -> TokenSchema:
+        now = datetime.now(timezone.utc)
+        expire = now + (
+            expire_timedelta or timedelta(minutes=self.access_token_expire_minutes)
+        )
 
-def decode_jwt(
-    token: str | bytes,
-    public_key: str = app_config.auth_jwt.public_key_path.read_text(),
-    algorithm: str = app_config.auth_jwt.algorithm,
-) -> dict:
-    return jwt.decode(
-        token,
-        public_key,
-        algorithms=[algorithm],
-    )
+        to_encode = payload.copy()
+        to_encode.update(
+            exp=expire,
+            iat=now,
+        )
+
+        token = jwt.encode(
+            to_encode,
+            self.private_key,
+            algorithm=self.algorithm,
+        )
+
+        return TokenSchema(token=token, token_type=self.token_type)
+
+    def decode(self, token: Union[str, bytes]) -> Dict[str, Any]:
+        return jwt.decode(
+            token,
+            self.public_key,
+            algorithms=[self.algorithm],
+        )
+
+    def get_payload(self, user: User):
+        return {
+            "sub": str(user.id),
+            "phone": user.phone,
+            "role": user.role.name if user.role else None,
+        }

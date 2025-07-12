@@ -1,9 +1,9 @@
 from datetime import date, datetime
-from typing import List, Union
+from typing import Any
 from fastapi.routing import APIRoute
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.config.config import app_config
+from pydantic import field_validator
 
 
 @asynccontextmanager
@@ -17,17 +17,28 @@ async def log_registered_routes(app: FastAPI):
     yield
 
 
-def get_user_role_list() -> List[str]:
-    return [
-        value
-        for key, value in vars(type(app_config.user_role)).items()
-        if key.isupper()
-    ]
+def to_date(date_str: str) -> date:
+    return datetime.strptime(date_str, "%d.%m.%Y").date()
 
 
-def to_date(value: Union[str, datetime, date]) -> date:
-    if isinstance(value, str):
-        return datetime.strptime(value, "%Y-%m-%d").date()
-    elif isinstance(value, datetime):
-        return value.date()
-    return value
+class DateParser:
+    @field_validator("date_of_birth", mode="before")
+    @staticmethod
+    def parse(dob: Any) -> date | None:
+        if isinstance(dob, str):
+            try:
+                return to_date(dob)
+            except ValueError:
+                return None
+        elif isinstance(dob, date):
+            return dob
+        return None
+
+
+# class BaseModelExcludeNone(BaseModel):
+#     model_config = ConfigDict(strict=True)
+
+#     def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+#         if "exclude_none" not in kwargs:
+#             kwargs["exclude_none"] = True
+#         return super().model_dump(*args, **kwargs)

@@ -1,14 +1,29 @@
 import asyncio
-from app.db.seeders.user_admin import seed_admin_user
+from app.db.seeders.role import RoleSeeder
 from app.db.session import AsyncSessionLocal
-from app.db.seeders.role import seed_roles
+from app.db.seeders.user_admin import UserAdminSeeder
+from app.repository.role import RoleRepository
+from app.services.jwt import JWTService
+from app.services.user import UserService
 
 
 async def main():
     async with AsyncSessionLocal() as session:
-        await seed_roles(session)
-        await seed_admin_user(session)
 
+        role_seeder = RoleSeeder(session)
+        await role_seeder.seed()
+
+        role_repo = RoleRepository(session)
+        jwt_service = JWTService()
+        user_service = UserService(jwt_service, session)
+
+        user_admin_seeder = UserAdminSeeder(
+            user_service=user_service,
+            role_repo=role_repo,
+            session=session,
+        )
+
+        await user_admin_seeder.seed()
 
 if __name__ == "__main__":
     asyncio.run(main())
