@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, text
+from sqlalchemy import Boolean, ForeignKey, Integer, String, text, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 from app.db.table_names import TableNames
 
 if TYPE_CHECKING:
-    from app.db.models import Nurse, Patient, Post
+    from app.db.models import Nurse, Post, PatientDoctorDiagnose
 
 
 class Session(IdIntPkMixin, TimestampMixin, Base):
@@ -24,9 +24,8 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
         Integer, nullable=False, comment="Session duration in ms"
     )
 
-    # TODO "mg/l" ????
-    ozone_concentration: Mapped[int] = mapped_column(
-        Integer, nullable=False, comment="mg/l"
+    ozone_concentration: Mapped[float] = mapped_column(
+        Float, nullable=False, comment="mg/l"
     )
 
     is_active: Mapped[bool] = mapped_column(
@@ -39,11 +38,13 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
 
     nurse: Mapped[Nurse] = relationship(back_populates="session")
 
-    patient_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{TableNames.PATIENT}.id"), nullable=False
+    patient_doctor_diagnose_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(f"{TableNames.PATIENT_DOCTOR_DIAGNOSE}.id"), nullable=False
     )
 
-    patient: Mapped[Patient] = relationship(back_populates="session")
+    patient_doctor_diagnose: Mapped[PatientDoctorDiagnose] = relationship(
+        back_populates="session"
+    )
 
     post: Mapped[Post] = relationship(back_populates="session")
 

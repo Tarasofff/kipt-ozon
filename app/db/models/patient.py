@@ -9,7 +9,7 @@ from app.db.table_names import TableNames
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 if TYPE_CHECKING:
-    from app.db.models import Session, PatientDoctorDiagnose
+    from app.db.models import PatientDoctorDiagnose
 
 
 class Patient(IdIntPkMixin, TimestampMixin, Base):
@@ -28,8 +28,6 @@ class Patient(IdIntPkMixin, TimestampMixin, Base):
     email: Mapped[str] = mapped_column(String(length=320), nullable=True)
 
     planned_session_count: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    session: Mapped[list[Session]] = relationship(back_populates="patient")
 
     patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(
         back_populates="patient"
