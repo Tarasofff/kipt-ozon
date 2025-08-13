@@ -9,7 +9,7 @@ from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 
 if TYPE_CHECKING:
-    from app.db.models import Doctor, Diagnose, Patient
+    from app.db.models import Doctor, Diagnose, Patient, Session
 
 
 class PatientDoctorDiagnose(IdIntPkMixin, TimestampMixin, Base):
@@ -29,6 +29,7 @@ class PatientDoctorDiagnose(IdIntPkMixin, TimestampMixin, Base):
     patient: Mapped[Patient] = relationship(back_populates="patient_doctor_diagnose")
     doctor: Mapped[Doctor] = relationship(back_populates="patient_doctor_diagnose")
     diagnose: Mapped[Diagnose] = relationship(back_populates="patient_doctor_diagnose")
+    session: Mapped[Session] = relationship(back_populates="patient_doctor_diagnose")
 
     __table_args__ = (
         UniqueConstraint(
