@@ -4,6 +4,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
+env_file = ".env"
+
 
 class JwtConfig(BaseModel):
     private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
@@ -44,7 +46,9 @@ class UserAdminConfig(BaseSettings):
     password: str = ""
     date_of_birth: str = "03.12.2000"
 
-    model_config = SettingsConfigDict(env_prefix="USER_ADMIN_")
+    model_config = SettingsConfigDict(
+        env_prefix="USER_ADMIN_", env_file=env_file, extra="allow"
+    )
 
 
 class DatabaseConfig(BaseSettings):
@@ -65,7 +69,9 @@ class DatabaseConfig(BaseSettings):
     def db_url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
 
-    model_config = SettingsConfigDict(env_prefix="POSTGRES_")
+    model_config = SettingsConfigDict(
+        env_prefix="POSTGRES_", env_file=env_file, extra="allow"
+    )
 
 
 class AppConfig(BaseSettings):
@@ -77,7 +83,7 @@ class AppConfig(BaseSettings):
     user_admin_config: UserAdminConfig = UserAdminConfig()
     database_config: DatabaseConfig = DatabaseConfig()
 
-    model_config = SettingsConfigDict(env_file=".env", extra="allow")
+    model_config = SettingsConfigDict(env_file=env_file, extra="allow")
 
 
 app_config = AppConfig()

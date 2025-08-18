@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from datetime import date
-from sqlalchemy import Integer, String, Date
+from sqlalchemy import Boolean, Integer, String, Date, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
 from app.db.table_names import TableNames
@@ -26,6 +26,10 @@ class Patient(IdIntPkMixin, TimestampMixin, Base):
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
 
     email: Mapped[str] = mapped_column(String(length=320), nullable=True)
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False, server_default=text("true")
+    )
 
     planned_session_count: Mapped[int] = mapped_column(Integer, nullable=False)
 

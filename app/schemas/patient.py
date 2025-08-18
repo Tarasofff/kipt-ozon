@@ -11,6 +11,7 @@ class PatientBase(BaseModel):
     date_of_birth: date
     email: Optional[str]
     planned_session_count: int
+    is_active: bool
 
 
 class PatientCreate(PatientBase):

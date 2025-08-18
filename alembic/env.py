@@ -30,7 +30,7 @@ target_metadata = Base.metadata
 # ... etc.
 
 # TODO
-database_url = f"postgresql+psycopg2://{app_config.postgres_user}:{app_config.postgres_password}@{app_config.postgres_host}:{app_config.postgres_port}/{app_config.postgres_db}"
+database_url = f"postgresql+psycopg2://{app_config.database_config.user}:{app_config.database_config.password}@{app_config.database_config.host}:{app_config.database_config.port}/{app_config.database_config.db}"
 config.set_main_option("sqlalchemy.url", database_url)
 
 
