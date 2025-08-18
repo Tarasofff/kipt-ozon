@@ -20,7 +20,7 @@ def get_user_service(session: AsyncSession = Depends(get_session)) -> UserServic
     response_model=UserLogin,
     status_code=status.HTTP_201_CREATED,
 )
-async def create(
+async def register(
     user: UserCreate,
     user_service: UserService = Depends(get_user_service),
 ) -> UserLogin:
