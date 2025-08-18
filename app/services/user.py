@@ -1,6 +1,6 @@
 from app.db.models import User
 from app.repository import UserRepository
-from app.schemas.user import UpdateUserSchema, UserSchema, LoginUserSchema
+from app.schemas.user import UpdateUserSchema, UserCreate, UserLogin
 from app.services import JWTService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +20,7 @@ class UserService:
         payload = self.jwt_service.get_payload(user)
         return self.jwt_service.encode(payload)
 
-    async def create(self, user_data: UserSchema):
+    async def create(self, user_data: UserCreate):
         user = User(**user_data.model_dump())
 
         created_user = await self.user_repo.create(user)
@@ -29,7 +29,7 @@ class UserService:
 
         await self.session.commit()
 
-        return LoginUserSchema(
+        return UserLogin(
             token=token_data.token,
             token_type=token_data.token_type,
             first_name=created_user.first_name,
@@ -41,6 +41,7 @@ class UserService:
             phone=created_user.phone,
             email=created_user.email,
             role_id=created_user.role_id,
+            password=created_user.password,
         )
 
     async def login(self, phone: str, password: str):

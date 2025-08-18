@@ -1,6 +1,6 @@
 from app.config.config import app_config
 from app.repository.role import RoleRepository
-from app.schemas.user import UpdateUserSchema, UserSchema
+from app.schemas.user import UserCreate
 from app.services.user import UserService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +31,7 @@ class UserAdminSeeder:
             if not admin_role:
                 raise ValueError("Admin role not found")
 
-            user_data = UserSchema(
+            user_data = UserCreate(
                 first_name=app_config.user_admin_config.first_name,
                 middle_name=app_config.user_admin_config.middle_name,
                 last_name=app_config.user_admin_config.last_name,
@@ -39,9 +39,8 @@ class UserAdminSeeder:
                 email=app_config.user_admin_config.email,
                 date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
                 password=app_config.user_admin_config.password,
+                role_id=admin_role.id,
+                is_active=True,
             )
 
-            new_user = await self.user_service.create(user_data)
-
-            update_user_data = UpdateUserSchema(role_id=admin_role.id)
-            await self.user_service.update(new_user.id, update_user_data)
+            return await self.user_service.create(user_data)

@@ -7,6 +7,7 @@ from app.services.jwt import JWTService
 from app.services.user import UserService
 
 
+# sequence matters!!!
 async def main():
     async with AsyncSessionLocal() as session:
 
