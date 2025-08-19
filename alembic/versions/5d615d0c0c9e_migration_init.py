@@ -1,8 +1,8 @@
 """migration_init
 
-Revision ID: 395672e6f009
+Revision ID: 5d615d0c0c9e
 Revises:
-Create Date: 2025-08-19 11:52:13.515956
+Create Date: 2025-08-19 15:27:03.326447
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "395672e6f009"
+revision: str = "5d615d0c0c9e"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -40,6 +40,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_country")),
     )
+    op.create_index(op.f("ix_country_name"), "country", ["name"], unique=True)
     op.create_table(
         "diagnose",
         sa.Column("name", sa.String(length=2048), nullable=False),
@@ -128,7 +129,7 @@ def upgrade() -> None:
     op.create_table(
         "city",
         sa.Column("name", sa.String(length=256), nullable=False),
-        sa.Column("county_id", sa.Integer(), nullable=True),
+        sa.Column("county_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "created_at",
@@ -146,6 +147,7 @@ def upgrade() -> None:
             ["county_id"], ["country.id"], name=op.f("fk_city_county_id")
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_city")),
+        sa.UniqueConstraint("name", "county_id", name=op.f("uq_city_name")),
     )
     op.create_table(
         "user",
@@ -178,28 +180,6 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_user_phone"), "user", ["phone"], unique=True)
     op.create_table(
-        "address",
-        sa.Column("name", sa.String(length=256), nullable=False),
-        sa.Column("city_id", sa.Integer(), nullable=True),
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.Column(
-            "updated_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("now()"),
-            nullable=False,
-        ),
-        sa.ForeignKeyConstraint(
-            ["city_id"], ["city.id"], name=op.f("fk_address_city_id")
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_address")),
-    )
-    op.create_table(
         "nurse",
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
@@ -221,10 +201,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_nurse")),
     )
     op.create_table(
-        "hospital",
+        "street",
         sa.Column("name", sa.String(length=256), nullable=False),
-        sa.Column("number", sa.Integer(), nullable=True),
-        sa.Column("address_id", sa.Integer(), nullable=False),
+        sa.Column("city_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "created_at",
@@ -239,9 +218,59 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["address_id"], ["address.id"], name=op.f("fk_hospital_address_id")
+            ["city_id"], ["city.id"], name=op.f("fk_street_city_id")
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_street")),
+        sa.UniqueConstraint("name", "city_id", name=op.f("uq_street_name")),
+    )
+    op.create_table(
+        "building",
+        sa.Column("number", sa.String(length=256), nullable=False),
+        sa.Column("street_id", sa.Integer(), nullable=False),
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["street_id"], ["street.id"], name=op.f("fk_building_street_id")
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_building")),
+        sa.UniqueConstraint("number", "street_id", name=op.f("uq_building_number")),
+    )
+    op.create_table(
+        "hospital",
+        sa.Column("name", sa.String(length=256), nullable=False),
+        sa.Column("number", sa.Integer(), nullable=True),
+        sa.Column("building_id", sa.Integer(), nullable=False),
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["building_id"], ["building.id"], name=op.f("fk_hospital_building_id")
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_hospital")),
+        sa.UniqueConstraint(
+            "building_id", "name", "number", name=op.f("uq_hospital_building_id")
+        ),
     )
     op.create_table(
         "doctor",
@@ -367,8 +396,9 @@ def downgrade() -> None:
     op.drop_table("patient_doctor_diagnose")
     op.drop_table("doctor")
     op.drop_table("hospital")
+    op.drop_table("building")
+    op.drop_table("street")
     op.drop_table("nurse")
-    op.drop_table("address")
     op.drop_index(op.f("ix_user_phone"), table_name="user")
     op.drop_table("user")
     op.drop_table("city")
@@ -376,5 +406,6 @@ def downgrade() -> None:
     op.drop_table("post")
     op.drop_table("patient")
     op.drop_table("diagnose")
+    op.drop_index(op.f("ix_country_name"), table_name="country")
     op.drop_table("country")
     # ### end Alembic commands ###

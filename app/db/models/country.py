@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 class Country(IdIntPkMixin, TimestampMixin, Base):
     __tablename__ = TableNames.COUNTRY
 
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    name: Mapped[str] = mapped_column(
+        String(256),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
 
     city: Mapped[list[City]] = relationship(back_populates="country")

@@ -19,8 +19,8 @@ class RoleRepository:
         await self.session.flush()
         return role
 
-    async def get_all(self) -> List[Role]:
-        stmt = select(Role)
+    async def get_all(self, offset: int = 0, limit: int = 100) -> List[Role]:
+        stmt = select(Role).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
-        roles = result.scalars().all()
-        return list(roles)
+        values = result.scalars().all()
+        return list(values)

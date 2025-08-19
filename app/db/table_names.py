@@ -11,4 +11,6 @@ class TableNames:
     HOSPITAL = "hospital"
     CITY = "city"
     ADDRESS = "address"
+    STREET = "street"
+    BUILDING = "building"
     POST = "post"
