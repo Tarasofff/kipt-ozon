@@ -1,4 +1,5 @@
 import asyncio
+from app.db.seeders.diagnose import DiagnoseSeeder
 from app.db.seeders.locations import LocationSeeder
 from app.db.seeders.role import RoleSeeder
 from app.db.session import AsyncSessionLocal
@@ -32,6 +33,11 @@ async def main():
         # Country/city/street/building/hospital seed (locations)
         locations_seeder = LocationSeeder(session)
         await locations_seeder.seed()
+
+        # Diagnose seeder
+        diagnose_seeder = DiagnoseSeeder(session)
+        await diagnose_seeder.seed()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

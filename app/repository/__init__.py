@@ -6,3 +6,4 @@ from app.repository.city import CityRepository
 from app.repository.street import StreetRepository
 from app.repository.building import BuildingRepository
 from app.repository.hospital import HospitalRepository
+from app.repository.diagnose import DiagnoseRepository

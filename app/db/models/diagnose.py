@@ -13,7 +13,9 @@ if TYPE_CHECKING:
 class Diagnose(IdIntPkMixin, TimestampMixin, Base):
     __tablename__ = TableNames.DIAGNOSE
 
-    name: Mapped[str] = mapped_column(String(2048), nullable=False)
+    name: Mapped[str] = mapped_column(
+        String(2048), nullable=False, index=True, unique=True
+    )
 
     patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(
         back_populates="diagnose"
