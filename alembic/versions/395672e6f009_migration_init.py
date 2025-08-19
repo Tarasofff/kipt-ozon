@@ -1,8 +1,8 @@
 """migration_init
 
-Revision ID: b81da24c2d0a
+Revision ID: 395672e6f009
 Revises:
-Create Date: 2025-08-18 14:34:49.410934
+Create Date: 2025-08-19 11:52:13.515956
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "b81da24c2d0a"
+revision: str = "395672e6f009"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -159,7 +159,7 @@ def upgrade() -> None:
             "is_active", sa.Boolean(), server_default=sa.text("true"), nullable=False
         ),
         sa.Column("password", sa.String(length=1024), nullable=False),
-        sa.Column("role_id", sa.Integer(), nullable=True),
+        sa.Column("role_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "created_at",

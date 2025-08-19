@@ -44,7 +44,7 @@ class User(IdIntPkMixin, TimestampMixin, Base):
     doctor: Mapped[Doctor] = relationship(back_populates="user")
 
     role_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{TableNames.ROLE}.id"), nullable=True
+        Integer, ForeignKey(f"{TableNames.ROLE}.id"), nullable=False
     )
 
     role: Mapped[Role] = relationship(back_populates="user")
