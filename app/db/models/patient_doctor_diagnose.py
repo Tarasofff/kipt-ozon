@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -29,7 +29,9 @@ class PatientDoctorDiagnose(IdIntPkMixin, TimestampMixin, Base):
     patient: Mapped[Patient] = relationship(back_populates="patient_doctor_diagnose")
     doctor: Mapped[Doctor] = relationship(back_populates="patient_doctor_diagnose")
     diagnose: Mapped[Diagnose] = relationship(back_populates="patient_doctor_diagnose")
-    session: Mapped[Session] = relationship(back_populates="patient_doctor_diagnose")
+    session: Mapped[List[Session]] = relationship(
+        back_populates="patient_doctor_diagnose"
+    )
 
     __table_args__ = (
         UniqueConstraint(

@@ -7,27 +7,26 @@ from app.db.models.mixins import IdIntPkMixin, TimestampMixin
 from app.db.table_names import TableNames
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
 if TYPE_CHECKING:
-    from app.db.models import Street, Country
+    from app.db.models import Hospital, Cabinet
 
 
-class City(IdIntPkMixin, TimestampMixin, Base):
-    __tablename__ = TableNames.CITY
+class Department(IdIntPkMixin, TimestampMixin, Base):
+    __tablename__ = TableNames.DEPARTMENT
 
     name: Mapped[str] = mapped_column(String(256), nullable=False)
 
-    country_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{TableNames.COUNTRY}.id"), nullable=False
+    hospital: Mapped[Hospital] = relationship(back_populates="department")
+
+    hospital_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(f"{TableNames.HOSPITAL}.id"), nullable=False
     )
 
-    country: Mapped[Country] = relationship(back_populates="city")
-
-    street: Mapped[list[Street]] = relationship(back_populates="city")
+    cabinet: Mapped[list[Cabinet]] = relationship(back_populates="department")
 
     __table_args__ = (
         UniqueConstraint(
+            "hospital_id",
             "name",
-            "country_id",
         ),
     )

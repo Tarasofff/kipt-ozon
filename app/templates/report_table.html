@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="static/css/report_table.css">
+</head>
+<body>
+  <div class="header">
+    <h2>{{ hospital.name }}</h2>
+    <p>Адрес: {{ hospital.address }}</p>
+    <p>Кабинет озоновой физиотерапии</p>
+    <p><b>Реестровая ведомость учёта больных, прошедших курс лечения</b></p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Реестровый номер</th>
+        <th>Дата</th>
+        <th>ФИО</th>
+        <th>Диагноз</th>
+        <th>Продолжит. сеанса</th>
+        <th>Кол-во сеансов</th>
+        <th>Пройдено</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in records %}
+      <tr>
+        <td>{{ row.registry_number }}</td>
+        <td>{{ row.date }}</td>
+        <td>{{ row.full_name }}</td>
+        <td>{{ row.diagnose }}</td>
+        <td>{{ row.session_duration }}</td>
+        <td>{{ row.session_count }}</td>
+        <td>{{ row.sessions_done }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

@@ -13,3 +13,6 @@ class TableNames:
     STREET = "street"
     BUILDING = "building"
     POST = "post"
+    PATIENT_HOSPITAL = "patient_hospital"
+    DEPARTMENT = "department"
+    CABINET = "cabinet"

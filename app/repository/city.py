@@ -8,14 +8,14 @@ class CityRepository:
         self.session = session
 
     async def get_by_name_and_country_id(
-        self, name: str, county_id: int
+        self, name: str, country_id: int
     ) -> City | None:
-        stmt = select(City).where(City.name == name, City.county_id == county_id)
+        stmt = select(City).where(City.name == name, City.country_id == country_id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def create(self, name: str, county_id: int) -> City:
-        value = City(name=name, county_id=county_id)
+    async def create(self, name: str, country_id: int) -> City:
+        value = City(name=name, country_id=country_id)
         self.session.add(value)
         await self.session.flush()
         return value

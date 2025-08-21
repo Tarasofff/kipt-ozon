@@ -14,11 +14,7 @@ if TYPE_CHECKING:
 class Session(IdIntPkMixin, TimestampMixin, Base):
     __tablename__ = TableNames.SESSION
 
-    notes: Mapped[str] = mapped_column(String(64), nullable=False)
-
-    session_number: Mapped[int] = mapped_column(
-        Integer, nullable=False, comment="session ordinal number"
-    )
+    notes: Mapped[str] = mapped_column(String(64), nullable=True)
 
     session_duration_ms: Mapped[int] = mapped_column(
         Integer, nullable=False, comment="Session duration in ms"

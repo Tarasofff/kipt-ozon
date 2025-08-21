@@ -7,3 +7,6 @@ from app.repository.street import StreetRepository
 from app.repository.building import BuildingRepository
 from app.repository.hospital import HospitalRepository
 from app.repository.diagnose import DiagnoseRepository
+from app.repository.department import DepartmentRepository
+from app.repository.cabinet import CabinetRepository
+from app.repository.post import PostRepository

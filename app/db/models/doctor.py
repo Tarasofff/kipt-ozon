@@ -9,7 +9,7 @@ from app.db.models.base import Base
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 if TYPE_CHECKING:
-    from app.db.models import PatientDoctorDiagnose, User, Hospital
+    from app.db.models import PatientDoctorDiagnose, User
 
 
 class Doctor(IdIntPkMixin, TimestampMixin, Base):
@@ -23,10 +23,4 @@ class Doctor(IdIntPkMixin, TimestampMixin, Base):
 
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(f"{TableNames.USER}.id"), nullable=False
-    )
-
-    hospital: Mapped[Hospital] = relationship(back_populates="doctor")
-
-    hospital_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{TableNames.HOSPITAL}.id"), nullable=False
     )

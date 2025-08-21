@@ -7,7 +7,7 @@ class HospitalRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_hospital(
+    async def get_by_name_and_building_id(
         self, name: str, building_id: int, number: int | None = None
     ) -> Hospital | None:
         stmt = select(Hospital).where(
@@ -15,6 +15,11 @@ class HospitalRepository:
             Hospital.building_id == building_id,
             Hospital.number == number,
         )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_by_id(self, id: int) -> Hospital | None:
+        stmt = select(Hospital).where(Hospital.id == id)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

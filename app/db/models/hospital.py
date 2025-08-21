@@ -8,9 +8,10 @@ from app.db.table_names import TableNames
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from app.db.models import Building, Doctor
+    from app.db.models import Building, Department
 
 
+# TODO doctor & nurse
 class Hospital(IdIntPkMixin, TimestampMixin, Base):
     __tablename__ = TableNames.HOSPITAL
 
@@ -24,7 +25,7 @@ class Hospital(IdIntPkMixin, TimestampMixin, Base):
         Integer, ForeignKey(f"{TableNames.BUILDING}.id"), nullable=False
     )
 
-    doctor: Mapped[list[Doctor]] = relationship(back_populates="hospital")
+    department: Mapped[list[Department]] = relationship(back_populates="hospital")
 
     __table_args__ = (
         UniqueConstraint(

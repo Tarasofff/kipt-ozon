@@ -1,8 +1,8 @@
 """migration_init
 
-Revision ID: b73f4b65558a
+Revision ID: e821cc9a5743
 Revises: 
-Create Date: 2025-08-19 18:41:39.138532
+Create Date: 2025-08-21 19:31:54.951610
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b73f4b65558a'
+revision: str = 'e821cc9a5743'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -51,13 +51,6 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_patient'))
     )
-    op.create_table('post',
-    sa.Column('number', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_post'))
-    )
     op.create_table('role',
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -69,13 +62,13 @@ def upgrade() -> None:
     )
     op.create_table('city',
     sa.Column('name', sa.String(length=256), nullable=False),
-    sa.Column('county_id', sa.Integer(), nullable=False),
+    sa.Column('country_id', sa.Integer(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['county_id'], ['country.id'], name=op.f('fk_city_county_id')),
+    sa.ForeignKeyConstraint(['country_id'], ['country.id'], name=op.f('fk_city_country_id')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_city')),
-    sa.UniqueConstraint('name', 'county_id', name=op.f('uq_city_name'))
+    sa.UniqueConstraint('name', 'country_id', name=op.f('uq_city_name'))
     )
     op.create_table('user',
     sa.Column('first_name', sa.String(length=64), nullable=False),
@@ -94,6 +87,14 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_user'))
     )
     op.create_index(op.f('ix_user_phone'), 'user', ['phone'], unique=True)
+    op.create_table('doctor',
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_doctor_user_id')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_doctor'))
+    )
     op.create_table('nurse',
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -122,27 +123,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_building')),
     sa.UniqueConstraint('number', 'street_id', name=op.f('uq_building_number'))
     )
-    op.create_table('hospital',
-    sa.Column('name', sa.String(length=256), nullable=False),
-    sa.Column('number', sa.Integer(), nullable=True),
-    sa.Column('building_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['building_id'], ['building.id'], name=op.f('fk_hospital_building_id')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_hospital')),
-    sa.UniqueConstraint('building_id', 'name', 'number', name=op.f('uq_hospital_building_id'))
-    )
-    op.create_table('doctor',
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('hospital_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['hospital_id'], ['hospital.id'], name=op.f('fk_doctor_hospital_id')),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], name=op.f('fk_doctor_user_id')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_doctor'))
-    )
     op.create_table('patient_doctor_diagnose',
     sa.Column('patient_id', sa.Integer(), nullable=False),
     sa.Column('doctor_id', sa.Integer(), nullable=False),
@@ -156,9 +136,49 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id', name=op.f('pk_patient_doctor_diagnose')),
     sa.UniqueConstraint('patient_id', 'doctor_id', 'diagnose_id', name=op.f('uq_patient_doctor_diagnose_patient_id'))
     )
+    op.create_table('hospital',
+    sa.Column('name', sa.String(length=256), nullable=False),
+    sa.Column('number', sa.Integer(), nullable=True),
+    sa.Column('building_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['building_id'], ['building.id'], name=op.f('fk_hospital_building_id')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_hospital')),
+    sa.UniqueConstraint('building_id', 'name', 'number', name=op.f('uq_hospital_building_id'))
+    )
+    op.create_table('department',
+    sa.Column('name', sa.String(length=256), nullable=False),
+    sa.Column('hospital_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['hospital_id'], ['hospital.id'], name=op.f('fk_department_hospital_id')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_department')),
+    sa.UniqueConstraint('hospital_id', 'name', name=op.f('uq_department_hospital_id'))
+    )
+    op.create_table('cabinet',
+    sa.Column('number', sa.String(length=256), nullable=False),
+    sa.Column('department_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['department_id'], ['department.id'], name=op.f('fk_cabinet_department_id')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_cabinet')),
+    sa.UniqueConstraint('department_id', 'number', name=op.f('uq_cabinet_department_id'))
+    )
+    op.create_table('post',
+    sa.Column('number', sa.Integer(), nullable=False),
+    sa.Column('cabinet_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['cabinet_id'], ['cabinet.id'], name=op.f('fk_post_cabinet_id')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_post')),
+    sa.UniqueConstraint('cabinet_id', 'number', name=op.f('uq_post_cabinet_id'))
+    )
     op.create_table('session',
-    sa.Column('notes', sa.String(length=64), nullable=False),
-    sa.Column('session_number', sa.Integer(), nullable=False, comment='session ordinal number'),
+    sa.Column('notes', sa.String(length=64), nullable=True),
     sa.Column('session_duration_ms', sa.Integer(), nullable=False, comment='Session duration in ms'),
     sa.Column('ozone_concentration', sa.Float(), nullable=False, comment='mg/l'),
     sa.Column('is_active', sa.Boolean(), server_default=sa.text('false'), nullable=False),
@@ -180,17 +200,19 @@ def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('session')
-    op.drop_table('patient_doctor_diagnose')
-    op.drop_table('doctor')
+    op.drop_table('post')
+    op.drop_table('cabinet')
+    op.drop_table('department')
     op.drop_table('hospital')
+    op.drop_table('patient_doctor_diagnose')
     op.drop_table('building')
     op.drop_table('street')
     op.drop_table('nurse')
+    op.drop_table('doctor')
     op.drop_index(op.f('ix_user_phone'), table_name='user')
     op.drop_table('user')
     op.drop_table('city')
     op.drop_table('role')
-    op.drop_table('post')
     op.drop_table('patient')
     op.drop_index(op.f('ix_diagnose_name'), table_name='diagnose')
     op.drop_table('diagnose')

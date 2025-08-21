@@ -14,3 +14,5 @@ from .hospital import Hospital
 from .post import Post
 from .street import Street
 from .building import Building
+from .department import Department
+from .cabinet import Cabinet
