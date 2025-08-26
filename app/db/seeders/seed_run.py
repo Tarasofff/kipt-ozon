@@ -1,6 +1,6 @@
 import asyncio
 from app.db.seeders.diagnose import DiagnoseSeeder
-from app.db.seeders.locations import LocationSeeder
+from app.db.seeders.address_hospital import AddressHospitalSeeder
 from app.db.seeders.role import RoleSeeder
 from app.db.session import AsyncSessionLocal
 from app.db.seeders.user_admin import UserAdminSeeder
@@ -30,8 +30,8 @@ async def main():
 
         await user_admin_seeder.seed()
 
-        # Country/city/street/building/hospital seed (locations)
-        locations_seeder = LocationSeeder(session)
+        # address hospital seed
+        locations_seeder = AddressHospitalSeeder(session)
         await locations_seeder.seed()
 
         # Diagnose seeder

@@ -7,12 +7,12 @@ class HospitalRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_name_and_building_id(
-        self, name: str, building_id: int, number: int | None = None
+    async def get_by_name_and_address_id(
+        self, name: str, address_id: int, number: int | None = None
     ) -> Hospital | None:
         stmt = select(Hospital).where(
             Hospital.name == name,
-            Hospital.building_id == building_id,
+            Hospital.address_id == address_id,
             Hospital.number == number,
         )
         result = await self.session.execute(stmt)
@@ -24,9 +24,9 @@ class HospitalRepository:
         return result.scalar_one_or_none()
 
     async def create(
-        self, name: str, building_id: int, number: int | None = None
+        self, name: str, address_id: int, number: int | None = None
     ) -> Hospital:
-        value = Hospital(name=name, number=number, building_id=building_id)
+        value = Hospital(name=name, number=number, address_id=address_id)
         self.session.add(value)
         await self.session.flush()
         return value

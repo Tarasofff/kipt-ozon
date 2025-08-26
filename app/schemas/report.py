@@ -1,92 +1,84 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
+
+# TODO
 
 
-class UserSchema(BaseModel):
+class BaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserSchema(BaseSchema):
     id: int
     first_name: str
     middle_name: Optional[str]
     last_name: str
     phone: str
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class NurseSchema(BaseModel):
+class NurseSchema(BaseSchema):
     id: int
     user: UserSchema
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class DepartmentSchema(BaseModel):
-    id: int
-    name: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class CabinetSchema(BaseModel):
+class CabinetSchema(BaseSchema):
     id: int
     number: str
-    department: DepartmentSchema
-
-    model_config = ConfigDict(from_attributes=True)
 
 
-class PostSchema(BaseModel):
+class PostSchema(BaseSchema):
     id: int
     number: int
     cabinet: CabinetSchema
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class SessionSchema(BaseModel):
+class SessionSchema(BaseSchema):
     id: int
     notes: Optional[str]
     session_duration_ms: int
+    created_at: datetime
+    updated_at: datetime
     ozone_concentration: float
     is_active: bool
     post: PostSchema
     nurse: NurseSchema
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class DiagnoseSchema(BaseModel):
+class DiagnoseSchema(BaseSchema):
     id: int
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class DoctorSchema(BaseModel):
+class DoctorSchema(BaseSchema):
     id: int
     user: UserSchema
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class PatientDoctorDiagnoseSchema(BaseModel):
+class PatientDoctorDiagnoseSchema(BaseSchema):
     id: int
     doctor: DoctorSchema
     diagnose: DiagnoseSchema
     session: Optional[List[SessionSchema]]
 
-    model_config = ConfigDict(from_attributes=True)
+
+class AddressSchema(BaseSchema):
+    id: int
+    country_name: str
+    city_name: str
+    street_name: str
+    building_number: str
+    postal_code: str
 
 
-class HospitalSchema(BaseModel):
+class HospitalSchema(BaseSchema):
     id: int
     name: str
     number: Optional[int]
+    address: AddressSchema
 
-    model_config = ConfigDict(from_attributes=True)
 
-
-class PatientSchema(BaseModel):
+class PatientSchema(BaseSchema):
     id: int
     first_name: str
     middle_name: Optional[str]
@@ -96,7 +88,11 @@ class PatientSchema(BaseModel):
     date_of_birth: date
     is_active: bool
     planned_session_count: int
-    patient_doctor_diagnose: Optional[List[PatientDoctorDiagnoseSchema]]
-    hospital: Optional[HospitalSchema] = None
 
-    model_config = ConfigDict(from_attributes=True)
+
+class PatientReportSchema(BaseSchema):
+    patient: PatientSchema
+    hospital: HospitalSchema
+    doctor: DoctorSchema
+    diagnose: DiagnoseSchema
+    session: Optional[List[SessionSchema]]

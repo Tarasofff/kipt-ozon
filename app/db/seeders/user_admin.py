@@ -28,38 +28,38 @@ class UserAdminSeeder:
                 return
 
             admin_role = await self.role_repo.get_by_name(app_config.user_role.ADMIN)
-            role1 = await self.role_repo.get_by_name(app_config.user_role.DOCTOR)
-            role2 = await self.role_repo.get_by_name(app_config.user_role.NURSE)
+            # role1 = await self.role_repo.get_by_name(app_config.user_role.DOCTOR)
+            # role2 = await self.role_repo.get_by_name(app_config.user_role.NURSE)
             if not admin_role:
                 raise ValueError("Admin role not found")
 
-            doctor = UserCreate(
-                first_name="doctor",
-                middle_name="doctor",
-                last_name="doctor",
-                phone="380000000",
-                email=app_config.user_admin_config.email,
-                date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
-                password=app_config.user_admin_config.password,
-                role_id=role1.id,  # type: ignore
-                is_active=True,
-            )
+            # doctor = UserCreate(
+            #     first_name="doctor",
+            #     middle_name="doctor",
+            #     last_name="doctor",
+            #     phone="380000000",
+            #     email=app_config.user_admin_config.email,
+            #     date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
+            #     password=app_config.user_admin_config.password,
+            #     role_id=role1.id,  # type: ignore
+            #     is_active=True,
+            # )
 
-            await self.user_service.create(doctor)
+            # await self.user_service.create(doctor)
 
-            nurse = UserCreate(
-                first_name="nurse",
-                middle_name="nurse",
-                last_name="nurse",
-                phone="380000001",
-                email=app_config.user_admin_config.email,
-                date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
-                password=app_config.user_admin_config.password,
-                role_id=role2.id,  # type: ignore
-                is_active=True,
-            )
+            # nurse = UserCreate(
+            #     first_name="nurse",
+            #     middle_name="nurse",
+            #     last_name="nurse",
+            #     phone="380000001",
+            #     email=app_config.user_admin_config.email,
+            #     date_of_birth=to_date(app_config.user_admin_config.date_of_birth),
+            #     password=app_config.user_admin_config.password,
+            #     role_id=role2.id,  # type: ignore
+            #     is_active=True,
+            # )
 
-            await self.user_service.create(nurse)
+            # await self.user_service.create(nurse)
 
             user_data = UserCreate(
                 first_name=app_config.user_admin_config.first_name,
