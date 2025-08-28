@@ -1,5 +1,6 @@
 from pathlib import Path
 from io import BytesIO
+from typing import Any
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy import select
 from weasyprint import HTML  # type: ignore
@@ -15,15 +16,16 @@ from app.db.models import (
     Cabinet,
     Nurse,
 )
+from app.db.models.diagnose import Diagnose
 from app.repository import HospitalRepository, PatientRepository
 from app.schemas.report import (
     HospitalSchema,
     PatientDoctorDiagnoseSchema,
     PatientReportSchema,
     PatientSchema,
+    PatientSessionListSchema,
 )
-from sqlalchemy.orm import selectinload
-
+from sqlalchemy.orm import selectinload, load_only
 from app.utils.utils import get_current_date
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,23 +41,12 @@ class ReportService:
         self.patient_repo = PatientRepository(session=session)
         self.hospital_repo = HospitalRepository(session=session)
 
-    async def _get_patient_doctor_diagnose_data(self, patient_doctor_diagnose_id: int):
+    async def get_session_data(self, patient_doctor_diagnose_id: int):
         stmt = (
-            select(PatientDoctorDiagnose)
-            .where(PatientDoctorDiagnose.id == patient_doctor_diagnose_id)
+            select(Session)
+            .where(Session.patient_doctor_diagnose_id == patient_doctor_diagnose_id)
             .options(
-                selectinload(PatientDoctorDiagnose.diagnose),
-                selectinload(PatientDoctorDiagnose.doctor)
-                .joinedload(Doctor.user)
-                .load_only(
-                    User.id,
-                    User.first_name,
-                    User.middle_name,
-                    User.last_name,
-                    User.phone,
-                ),
-                selectinload(PatientDoctorDiagnose.session)
-                .load_only(
+                load_only(
                     Session.id,
                     Session.notes,
                     Session.session_duration_ms,
@@ -63,15 +54,39 @@ class ReportService:
                     Session.is_active,
                     Session.created_at,  # type: ignore
                     Session.updated_at,  # type: ignore
-                )
-                .joinedload(Session.post)
-                .load_only(Post.id, Post.number)
+                ),
+                selectinload(Session.post)
                 .joinedload(Post.cabinet)
                 .load_only(Cabinet.id, Cabinet.number),
-                selectinload(PatientDoctorDiagnose.session)
-                .joinedload(Session.nurse)
-                .load_only(Nurse.id)
+                selectinload(Session.nurse)
                 .joinedload(Nurse.user)
+                .load_only(
+                    User.id,
+                    User.first_name,
+                    User.middle_name,
+                    User.last_name,
+                    User.phone,
+                ),
+            )
+            .order_by(Session.id)
+        )
+
+        result = await self.session.execute(stmt)
+        session_data = result.scalars().all()
+        return PatientSessionListSchema.model_validate(
+            {"session": session_data}
+        ).model_dump()
+
+    async def _get_patient_doctor_diagnose_data(self, patient_doctor_diagnose_id: int):
+        stmt = (
+            select(PatientDoctorDiagnose)
+            .where(PatientDoctorDiagnose.id == patient_doctor_diagnose_id)
+            .options(
+                selectinload(PatientDoctorDiagnose.diagnose).load_only(
+                    Diagnose.id, Diagnose.name
+                ),
+                selectinload(PatientDoctorDiagnose.doctor)
+                .joinedload(Doctor.user)
                 .load_only(
                     User.id,
                     User.first_name,
@@ -84,6 +99,7 @@ class ReportService:
 
         result = await self.session.execute(stmt)
         patient_doctor_diagnose_data = result.scalar_one_or_none()
+
         return PatientDoctorDiagnoseSchema.model_validate(
             patient_doctor_diagnose_data
         ).model_dump()
@@ -112,18 +128,22 @@ class ReportService:
     async def get_report_data(
         self, patient_id: int, hospital_id: int, patient_doctor_diagnose_id: int
     ):
-        hospital_dump = await self._get_hospital_data(hospital_id)
-
         patient_dump = await self._get_patient_data(patient_id)
 
-        patient_doctor_diagnose = await self._get_patient_doctor_diagnose_data(
+        session_dump = await self.get_session_data(patient_doctor_diagnose_id)
+
+        hospital_dump = await self._get_hospital_data(hospital_id)
+
+        patient_doctor_diagnose_dump = await self._get_patient_doctor_diagnose_data(
             patient_doctor_diagnose_id
         )
+
         return PatientReportSchema.model_validate(
             {
                 "patient": patient_dump,
                 "hospital": hospital_dump,
-                **patient_doctor_diagnose,
+                **session_dump,
+                **patient_doctor_diagnose_dump,
             }
         ).model_dump()
 
@@ -132,11 +152,12 @@ class ReportService:
 
         return PatientSchema.model_validate(patient_data).model_dump()
 
-    async def get_report_table_pdf_bytes(self, report: dict):  # type: ignore
-        date = get_current_date()
+    async def get_report_table_pdf_bytes(self, report: dict[str, Any]):
 
         # Рендерим HTML
-        template = self.template_env.get_template("report_table.html")
+        template = self.template_env.get_template("report.html")
+
+        date = get_current_date()
         html_content = template.render(
             report=report,  # type: ignore
             date=date,

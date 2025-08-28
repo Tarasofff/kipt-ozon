@@ -2,18 +2,6 @@ from typing import Any, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.db.models import Patient
-from sqlalchemy.orm import selectinload
-from app.db.models import (
-    PatientDoctorDiagnose,
-    Doctor,
-    User,
-    Hospital,
-    Diagnose,
-    Session,
-    Post,
-    Nurse,
-    Cabinet,
-)
 
 
 class PatientRepository:

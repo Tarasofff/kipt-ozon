@@ -11,7 +11,7 @@ db_url = app_config.database_config.db_url()
 
 engine: AsyncEngine = create_async_engine(
     db_url,
-    echo=True,
+    echo=False,
 )
 
 AsyncSessionLocal = async_sessionmaker(

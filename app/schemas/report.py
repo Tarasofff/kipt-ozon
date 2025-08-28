@@ -45,6 +45,10 @@ class SessionSchema(BaseSchema):
     nurse: NurseSchema
 
 
+class PatientSessionListSchema(BaseSchema):
+    session: Optional[List[SessionSchema]]
+
+
 class DiagnoseSchema(BaseSchema):
     id: int
     name: str
@@ -59,7 +63,6 @@ class PatientDoctorDiagnoseSchema(BaseSchema):
     id: int
     doctor: DoctorSchema
     diagnose: DiagnoseSchema
-    session: Optional[List[SessionSchema]]
 
 
 class AddressSchema(BaseSchema):
@@ -90,9 +93,8 @@ class PatientSchema(BaseSchema):
     planned_session_count: int
 
 
-class PatientReportSchema(BaseSchema):
+class PatientReportSchema(PatientSessionListSchema):
     patient: PatientSchema
     hospital: HospitalSchema
     doctor: DoctorSchema
     diagnose: DiagnoseSchema
-    session: Optional[List[SessionSchema]]
