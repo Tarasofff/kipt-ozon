@@ -12,3 +12,7 @@
  # START APP 
 
  uvicorn app.main:app --reload
+
+ # KILL APP
+
+ taskkill /F /IM python.exe
