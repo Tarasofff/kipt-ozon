@@ -21,22 +21,22 @@ def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportSe
     "/patient/{patient_id}/hospital/{hospital_id}/patient-doctor-diagnose/{patient_doctor_diagnose_id}",
     status_code=status.HTTP_200_OK,
 )
-async def get_patient_session_report(
+async def get_report(
     patient_id: int = Depends(check_patient_exists),
     hospital_id: int = Depends(check_hospital_exists),
     patient_doctor_diagnose_id: int = Depends(check_patient_doctor_diagnose_exists),
     report_service: ReportService = Depends(get_report_service),
 ):
-    report_data = await report_service.get_report_data(
+    report_data_dump = await report_service.get_report_data(
         patient_id, hospital_id, patient_doctor_diagnose_id
     )
 
-    pdf_bytes = await report_service.get_report_table_pdf_bytes(report_data)
+    pdf_bytes = await report_service.get_pdf_bytes(report_data_dump)
 
     media_type = "application/pdf"
-    headers = {
-        "Content-Disposition": f"inline; filename=report_patient_id_{patient_id}.pdf"
-    }
+    file_ext = "pdf"
+    filename = f"report_patient_id_{patient_id}.{file_ext}"
+    headers = {"Content-Disposition": f"inline; filename={filename}"}
 
     return StreamingResponse(
         pdf_bytes,

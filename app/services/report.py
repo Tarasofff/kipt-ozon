@@ -30,18 +30,20 @@ from app.utils.utils import get_current_date
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates_dir = BASE_DIR / "templates"
+report_filename = "report.html"
 env = Environment(loader=FileSystemLoader(templates_dir))
 
 
 class ReportService:
     def __init__(self, session: AsyncSession):
         self.template_env = env
+        self.report_filename = report_filename
         self.base_dir = BASE_DIR
         self.session = session
         self.patient_repo = PatientRepository(session=session)
         self.hospital_repo = HospitalRepository(session=session)
 
-    async def get_session_data(self, patient_doctor_diagnose_id: int):
+    async def _get_session_data(self, patient_doctor_diagnose_id: int):
         stmt = (
             select(Session)
             .where(Session.patient_doctor_diagnose_id == patient_doctor_diagnose_id)
@@ -130,7 +132,7 @@ class ReportService:
     ):
         patient_dump = await self._get_patient_data(patient_id)
 
-        session_dump = await self.get_session_data(patient_doctor_diagnose_id)
+        session_dump = await self._get_session_data(patient_doctor_diagnose_id)
 
         hospital_dump = await self._get_hospital_data(hospital_id)
 
@@ -152,14 +154,14 @@ class ReportService:
 
         return PatientSchema.model_validate(patient_data).model_dump()
 
-    async def get_report_table_pdf_bytes(self, report: dict[str, Any]):
-
+    async def get_pdf_bytes(self, report: dict[str, Any]):
         # Рендерим HTML
-        template = self.template_env.get_template("report.html")
+        template = self.template_env.get_template(self.report_filename)
 
         date = get_current_date()
+
         html_content = template.render(
-            report=report,  # type: ignore
+            report=report,
             date=date,
         )
 
