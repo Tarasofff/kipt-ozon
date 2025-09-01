@@ -54,5 +54,5 @@ class JWTService:
         return {
             "sub": str(user.id),
             "phone": user.phone,
-            "role": user.role.name if user.role else None,
+            "role_id": user.role_id,
         }

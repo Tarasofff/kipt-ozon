@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
+from app.api.exceptions.api_exceptions import NotFoundException
 from app.db.session import get_session
 from app.repository import HospitalRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +16,5 @@ async def check_hospital_exists(
 ) -> int:
     result = await hospital_repo.get_by_id(hospital_id)
     if not result:
-        raise HTTPException(
-            status_code=404, detail=f"Hospital id:{hospital_id} not found"
-        )
+        raise NotFoundException("Hospital id:{hospital_id} not found")
     return result.id

@@ -1,6 +1,6 @@
 from app.config.config import app_config
 from app.repository.role import RoleRepository
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreateSchema
 from app.services.user import UserService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,7 +61,7 @@ class UserAdminSeeder:
 
             # await self.user_service.create(nurse)
 
-            user_data = UserCreate(
+            user_data = UserCreateSchema(
                 first_name=app_config.user_admin_config.first_name,
                 middle_name=app_config.user_admin_config.middle_name,
                 last_name=app_config.user_admin_config.last_name,

@@ -1,6 +1,11 @@
 from app.db.models import User
 from app.repository import UserRepository
-from app.schemas.user import UpdateUserSchema, UserCreate, UserLogin
+from app.schemas.user import (
+    UpdateUserSchema,
+    UserCreateSchema,
+    UserLoginSchema,
+    UserReadSchema,
+)
 from app.services import JWTService
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,32 +25,26 @@ class UserService:
         payload = self.jwt_service.get_payload(user)
         return self.jwt_service.encode(payload)
 
-    async def create(self, user_data: UserCreate):
+    async def create(self, user_data: UserCreateSchema):
         user = User(**user_data.model_dump())
 
         created_user = await self.user_repo.create(user)
+
+        created_user_dump = UserReadSchema.model_validate(created_user).model_dump()
 
         token_data = self.get_token(created_user)
 
         await self.session.commit()
 
-        return UserLogin(
-            token=token_data.token,
-            token_type=token_data.token_type,
-            first_name=created_user.first_name,
-            middle_name=created_user.middle_name,
-            last_name=created_user.last_name,
-            date_of_birth=created_user.date_of_birth,
-            id=created_user.id,
-            is_active=created_user.is_active,
-            phone=created_user.phone,
-            email=created_user.email,
-            role_id=created_user.role_id,
-            password=created_user.password,
+        return UserLoginSchema.model_validate(
+            {**token_data.model_dump(), **created_user_dump}
         )
 
-    async def login(self, phone: str, password: str):
-        pass
+    async def login(self, user: User):
+        token_data = self.get_token(user)
+        user_data = UserReadSchema.model_validate(user).model_dump()
+
+        return UserLoginSchema(**token_data.model_dump(), **user_data)
 
     async def get_by_phone(self, phone: str):
         return await self.user_repo.get_by_phone(phone)

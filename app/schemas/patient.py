@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class PatientBase(BaseModel):
+class PatientBaseSchema(BaseModel):
     first_name: str
     middle_name: str
     last_name: str
@@ -14,17 +14,17 @@ class PatientBase(BaseModel):
     is_active: bool
 
 
-class PatientCreate(PatientBase):
+class PatientCreateSchema(PatientBaseSchema):
     model_config = ConfigDict(strict=True)
 
 
-class PatientRead(PatientBase):
+class PatientReadSchema(PatientBaseSchema):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class PatientUpdate(BaseModel):
+class PatientUpdateSchema(BaseModel):
     first_name: Optional[str]
     middle_name: Optional[str]
     last_name: Optional[str]

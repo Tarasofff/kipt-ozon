@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
+from app.api.exceptions.api_exceptions import NotFoundException
 from app.db.session import get_session
 from app.repository import PatientRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +16,5 @@ async def check_patient_exists(
 ) -> int:
     result = await patient_repo.get_by_id(patient_id)
     if not result:
-        raise HTTPException(
-            status_code=404, detail=f"Patient id:{patient_id} not found"
-        )
+        raise NotFoundException("Patient id:{patient_id} not found")
     return result.id

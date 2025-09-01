@@ -4,7 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_session
 from app.db.models import Patient
 from app.repository.patient import PatientRepository
-from app.schemas.patient import PatientCreate, PatientRead, PatientUpdate
+from app.schemas.patient import (
+    PatientCreateSchema,
+    PatientReadSchema,
+    PatientUpdateSchema,
+)
 from typing import List
 from app.api.dependencies import (
     check_patient_exists,
@@ -19,16 +23,16 @@ def get_patient_repository(
     return PatientRepository(session)
 
 
-@router.post("/", response_model=PatientRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=PatientReadSchema, status_code=status.HTTP_201_CREATED)
 async def create(
-    patient_data: PatientCreate,
+    patient_data: PatientCreateSchema,
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
     patient = Patient(**patient_data.model_dump())
     return await patient_repo.create(patient)
 
 
-@router.get("/{id}", response_model=PatientRead, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=PatientReadSchema, status_code=status.HTTP_200_OK)
 async def get_by_id(
     id: int = Depends(check_patient_exists),
     patient_repo: PatientRepository = Depends(get_patient_repository),
@@ -36,7 +40,7 @@ async def get_by_id(
     return await patient_repo.get_by_id(id)
 
 
-@router.get("/", response_model=List[PatientRead], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=List[PatientReadSchema], status_code=status.HTTP_200_OK)
 async def get_all(
     limit: int = Query(10, ge=1, le=100),  # по умолчанию 10, от 1 до 100
     offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
@@ -45,9 +49,9 @@ async def get_all(
     return await patient_repo.get_all(offset=offset, limit=limit)
 
 
-@router.put("/{id}", response_model=PatientRead, status_code=status.HTTP_200_OK)
+@router.put("/{id}", response_model=PatientReadSchema, status_code=status.HTTP_200_OK)
 async def update(
-    patient_data: PatientUpdate,
+    patient_data: PatientUpdateSchema,
     id: int = Depends(check_patient_exists),
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
