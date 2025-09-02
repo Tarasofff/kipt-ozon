@@ -5,12 +5,17 @@ from app.api.dependencies import (
     check_patient_exists,
     check_hospital_exists,
     check_patient_doctor_diagnose_exists,
+    check_token,
 )
 from app.services import ReportService
 from app.db.session import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
-router = APIRouter(prefix=app_config.api_v1_prefix.report, tags=["Reports"])
+router = APIRouter(
+    prefix=app_config.api_v1_prefix.report,
+    dependencies=[Depends(check_token)],
+    tags=["Reports"],
+)
 
 
 def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportService:
@@ -20,11 +25,16 @@ def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportSe
 @router.get(
     "/patient/{patient_id}/hospital/{hospital_id}/patient-doctor-diagnose/{patient_doctor_diagnose_id}",
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_patient_exists),
+        Depends(check_hospital_exists),
+        Depends(check_patient_doctor_diagnose_exists),
+    ],
 )
 async def get_report(
-    patient_id: int = Depends(check_patient_exists),
-    hospital_id: int = Depends(check_hospital_exists),
-    patient_doctor_diagnose_id: int = Depends(check_patient_doctor_diagnose_exists),
+    patient_id: int,
+    hospital_id: int,
+    patient_doctor_diagnose_id: int,
     report_service: ReportService = Depends(get_report_service),
 ):
     report_data_dump = await report_service.get_report_data(

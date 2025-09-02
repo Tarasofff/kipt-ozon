@@ -16,5 +16,5 @@ async def check_patient_exists(
 ) -> int:
     result = await patient_repo.get_by_id(patient_id)
     if not result:
-        raise NotFoundException("Patient id:{patient_id} not found")
+        raise NotFoundException(f"Patient id:{patient_id} not found")
     return result.id

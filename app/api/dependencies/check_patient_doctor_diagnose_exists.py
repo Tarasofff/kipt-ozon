@@ -20,6 +20,6 @@ async def check_patient_doctor_diagnose_exists(
     result = await patient_doctor_diagnose_repo.get_by_id(patient_doctor_diagnose_id)
     if not result:
         raise NotFoundException(
-            "Patient_doctor_diagnose id:{patient_doctor_diagnose_id} not found"
+            f"Patient_doctor_diagnose id:{patient_doctor_diagnose_id} not found"
         )
     return result.id

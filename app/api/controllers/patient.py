@@ -12,9 +12,14 @@ from app.schemas.patient import (
 from typing import List
 from app.api.dependencies import (
     check_patient_exists,
+    check_token,
 )
 
-router = APIRouter(prefix=app_config.api_v1_prefix.patient, tags=["Patients"])
+router = APIRouter(
+    prefix=app_config.api_v1_prefix.patient,
+    tags=["Patients"],
+    dependencies=[Depends(check_token)],
+)
 
 
 def get_patient_repository(
@@ -23,7 +28,11 @@ def get_patient_repository(
     return PatientRepository(session)
 
 
-@router.post("/", response_model=PatientReadSchema, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=PatientReadSchema,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create(
     patient_data: PatientCreateSchema,
     patient_repo: PatientRepository = Depends(get_patient_repository),
@@ -32,12 +41,17 @@ async def create(
     return await patient_repo.create(patient)
 
 
-@router.get("/{id}", response_model=PatientReadSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{patient_id}",
+    response_model=PatientReadSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_patient_exists)],
+)
 async def get_by_id(
-    id: int = Depends(check_patient_exists),
+    patient_id: int,
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
-    return await patient_repo.get_by_id(id)
+    return await patient_repo.get_by_id(patient_id)
 
 
 @router.get("/", response_model=List[PatientReadSchema], status_code=status.HTTP_200_OK)
@@ -49,11 +63,16 @@ async def get_all(
     return await patient_repo.get_all(offset=offset, limit=limit)
 
 
-@router.put("/{id}", response_model=PatientReadSchema, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{patient_id}",
+    response_model=PatientReadSchema,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_patient_exists)],
+)
 async def update(
     patient_data: PatientUpdateSchema,
-    id: int = Depends(check_patient_exists),
+    patient_id: int,
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
     patient = patient_data.model_dump()
-    return await patient_repo.update(id, patient)
+    return await patient_repo.update(patient_id, patient)

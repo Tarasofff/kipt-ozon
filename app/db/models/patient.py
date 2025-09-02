@@ -21,7 +21,12 @@ class Patient(IdIntPkMixin, TimestampMixin, Base):
 
     last_name: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    phone: Mapped[str] = mapped_column(String(64), nullable=False)
+    phone: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
 
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
 
