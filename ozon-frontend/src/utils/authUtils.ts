@@ -8,7 +8,7 @@ export const logout = (dispatch: AppDispatch, navigate: ReturnType<typeof useNav
 
   localStorage.removeItem('token');
   localStorage.removeItem('token_type');
-  //   localStorage.removeItem('user');
+  localStorage.removeItem('user');
 
   navigate(APP_ROUTES.login);
 };

@@ -1,3 +1,7 @@
+import { useTypedSelector } from '@/app/store';
+import { processingReport } from '@/services/report/report';
+import { useState } from 'react';
+
 interface Address {
   id: number;
   city_name: string;
@@ -78,10 +82,6 @@ export interface PatientWithRelations {
   patient_doctor_diagnose: PatientDoctorDiagnose[];
 }
 
-import { useTypedSelector } from '@/app/store';
-import { processingReport } from '@/services/report/report';
-import { useState } from 'react';
-
 interface PatientInfoModalWindowProps {
   patient: PatientWithRelations | null;
   onClose: () => void;
@@ -100,13 +100,13 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
 
   // собрать уникальные больницы из сессий (без дублирования по id)
   const getUniqueHospitals = (pdd: NonNullable<PatientWithRelations['patient_doctor_diagnose']>[number]) => {
-    const arr =
+    const hospitals =
       pdd?.session
-        ?.map((s) => s?.post?.cabinet?.hospital)
-        .filter((h): h is Hospital => !!h && typeof h.id === 'number') ?? [];
+        ?.map((session) => session?.post?.cabinet?.hospital)
+        .filter((hospital): hospital is Hospital => !!hospital && typeof hospital.id === 'number') ?? [];
     const map = new Map<number, { id: number; name: string }>();
-    for (const h of arr) {
-      if (!map.has(h.id)) map.set(h.id, h);
+    for (const hospital of hospitals) {
+      if (!map.has(hospital.id)) map.set(hospital.id, hospital);
     }
     return Array.from(map.values());
   };
@@ -127,6 +127,7 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
       await processingReport(token, tokenType, patientId, hospitalId, pddId, download);
     } catch (err) {
       console.error('Ошибка при генерации отчёта:', err);
+      alert('Ошибка при генерации отчёта');
     } finally {
       setLoadingMap((prev) => ({ ...prev, [pddId]: false }));
     }
@@ -225,7 +226,8 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
                                   <strong>Активна:</strong> {session.is_active ? 'Да' : 'Нет'}
                                 </p>
                                 <p>
-                                  <strong>Длительность:</strong> {Math.round((session.session_duration_ms ?? 0) / 1000)} сек
+                                  <strong>Длительность:</strong> {Math.round((session.session_duration_ms ?? 0) / 1000)}{' '}
+                                  сек
                                 </p>
                                 <p>
                                   <strong>Концентрация озона mg/l:</strong> {session.ozone_concentration ?? '—'}
