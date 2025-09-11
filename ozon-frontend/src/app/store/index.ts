@@ -5,6 +5,7 @@ import createSagaMiddleware from 'redux-saga';
 import { i18nSlice } from '../i18n/store';
 import rootSaga from './rootSaga';
 import { authSlice } from '@/features/auth/model/authSlice';
+import { patientsSlice } from '@/features/patients/model/patientsSlice';
 
 enableMapSet();
 
@@ -14,6 +15,7 @@ export const store = configureStore({
   reducer: {
     i18n: i18nSlice.reducer,
     auth: authSlice.reducer,
+    patients: patientsSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -1,45 +1,13 @@
+import { useTypedDispatch, useTypedSelector } from '@/app/store';
+import { fetchPatientsRequest } from '@/features/patients/model/patientsSlice';
 import PatientsTable from '@/widgets/patient-table';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { BiFilterAlt } from 'react-icons/bi'; // значок фильтра
 
-type Patient = {
-  id: number;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  phone: string;
-  date_of_birth: string;
-  email?: string | null;
-  is_active: boolean;
-  planned_session_count: number;
-};
-
-const initialPatients: Patient[] = [
-  {
-    id: 1,
-    first_name: 'Иван',
-    middle_name: 'Иванович',
-    last_name: 'Петров',
-    phone: '+380991112233',
-    date_of_birth: '1990-01-01',
-    email: 'ivan.petrov@example.com',
-    is_active: true,
-    planned_session_count: 5,
-  },
-  {
-    id: 2,
-    first_name: 'Анна',
-    middle_name: 'Сергеевна',
-    last_name: 'Кузнецова',
-    phone: '+380931234567',
-    date_of_birth: '1985-06-15',
-    email: null,
-    is_active: false,
-    planned_session_count: 2,
-  },
-];
-
 export default function Patients() {
+  const dispatch = useTypedDispatch();
+  const { list: patients, loading, error } = useTypedSelector((state) => state.patients);
+
   // состояния фильтров
   const [filters, setFilters] = useState({
     last_name: '',
@@ -59,11 +27,14 @@ export default function Patients() {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+  useEffect(() => {
+    dispatch(fetchPatientsRequest());
+  }, [dispatch]);
+
   // отфильтрованные и отсортированные пациенты
   const filteredPatients = useMemo(() => {
-    let result = [...initialPatients];
+    let result = [...patients];
 
-    // фильтрация
     result = result.filter((p) => {
       return (
         p.last_name.toLowerCase().includes(filters.last_name.toLowerCase()) &&
@@ -76,11 +47,13 @@ export default function Patients() {
       );
     });
 
-    // сортировка по id
     result.sort((a, b) => (sortOrder === 'asc' ? a.id - b.id : b.id - a.id));
 
     return result;
-  }, [filters, sortOrder]);
+  }, [patients, filters, sortOrder]);
+
+  if (loading) return <div className="text-white p-8">Загрузка пациентов...</div>;
+  if (error) return <div className="text-red-400 p-8">Ошибка: {error}</div>;
 
   return (
     <div className="p-8">

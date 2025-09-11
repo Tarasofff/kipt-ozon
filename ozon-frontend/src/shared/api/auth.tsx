@@ -1,9 +1,5 @@
 import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/v1/',
-  headers: { 'Content-Type': 'application/json' },
-});
+import { API_DEFAULT_URl } from '../constants/api';
 
 export interface LoginPayload {
   phone: string;
@@ -11,5 +7,7 @@ export interface LoginPayload {
 }
 
 export async function login(payload: LoginPayload) {
-  return api.post('/user/login', payload).then((res) => res.data);
+  return axios
+    .post(API_DEFAULT_URl + '/user/login', payload, { headers: { 'Content-Type': 'application/json' } })
+    .then((res) => res.data);
 }
