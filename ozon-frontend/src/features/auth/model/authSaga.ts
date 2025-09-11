@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { login } from '@/shared/api/auth';
 import { loginRequest, loginSuccess, loginFailure } from './authSlice';
+import { saveAuthData } from '@/utils/localStorageUtils';
 
 function* loginWorker(action: ReturnType<typeof loginRequest>) {
   try {
@@ -20,9 +21,7 @@ function* loginWorker(action: ReturnType<typeof loginRequest>) {
     const token = data.token;
     const tokenType = data.token_type;
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('token_type', tokenType);
-    localStorage.setItem('user', JSON.stringify(user));
+    saveAuthData(token, tokenType, user);
 
     yield put(loginSuccess({ user, token, tokenType }));
   } catch (error: any) {

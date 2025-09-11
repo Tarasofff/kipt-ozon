@@ -2,7 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { APP_ROUTES } from '@/shared/constants/routes';
 import LanguageSwitcher from '@/features/i18n/LanguageSwitcher';
 import { useTypedDispatch, useTypedSelector } from '@/app/store/hooks';
-import { logout } from '@/utils/authUtils';
+import { clearAuthData } from '@/utils/localStorageUtils';
+import { logout } from '@/features/auth/model/authSlice';
 
 export default function Header() {
   const token = useTypedSelector((state) => state.auth.token);
@@ -10,7 +11,9 @@ export default function Header() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(dispatch, navigate);
+    dispatch(logout());
+    clearAuthData();
+    navigate(APP_ROUTES.login);
   };
 
   return (
