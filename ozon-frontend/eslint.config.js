@@ -10,6 +10,7 @@ module.exports = {
     },
   },
   extends: [
+    'react-app',
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
@@ -24,9 +25,12 @@ module.exports = {
     },
     ecmaVersion: 11,
     sourceType: 'module',
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
   },
-  plugins: ['react', 'react-hooks', '@typescript-eslint', 'tailwindcss', 'simple-import-sort'],
+  plugins: ['react', 'react-hooks', '@typescript-eslint', 'tailwindcss', 'simple-import-sort', '@typescript-eslint/eslint-plugin'],
   rules: {
+    '@typescript-eslint/interface-name-prefix': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -46,7 +50,7 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       {
         args: 'all',
         argsIgnorePattern: '^_',

@@ -1,18 +1,32 @@
 import { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import MainPage from "@/pages/main/ui/page";
+import Main from '@/pages/main/ui/page/Main';
 import { APP_ROUTES } from '@/shared/constants/routes';
 import { ErrorBoundary } from '@/widgets/error-boundary';
+import Layout from '@/widgets/layout/ui/Layout';
+import Login from '@/pages/login';
+import Registration from '@/pages/registration';
+import Patients from '@/pages/patients';
+import Sessions from '@/pages/sessions';
+import { ProtectedRoute } from '@/providers/router/ui/ProtectedRoute';
+import PageLoader from '@/widgets/page-loader/ui/PageLoader';
 
 const App = () => {
   return (
     <ErrorBoundary>
-      <Suspense>
-        <Routes>
-          <Route path={APP_ROUTES.main} element={<MainPage />} />
-          <Route path="*" element={<MainPage />} />
-        </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Layout>
+          <Routes>
+            <Route path={APP_ROUTES.main} element={<Main />} />
+            <Route path={APP_ROUTES.login} element={<Login />} />
+            <Route path={APP_ROUTES.registration} element={<Registration />} />
+            <Route element={<ProtectedRoute isAuth={true} redirectPath={APP_ROUTES.main} />}>
+              <Route path={APP_ROUTES.patients} element={<Patients />} />
+              <Route path={APP_ROUTES.sessions} element={<Sessions />} />
+            </Route>
+          </Routes>
+        </Layout>
       </Suspense>
     </ErrorBoundary>
   );

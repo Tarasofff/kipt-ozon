@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
-import { en, PluralCategory } from 'make-plural/plurals';
+import { en, ru, PluralCategory } from 'make-plural/plurals';
 
 import { DEFAULT_LOCALE, SupportedLocale } from '@/app/i18n/constants';
 
@@ -9,11 +9,12 @@ type LocalePlural = Record<SupportedLocale, (n: number, ordinal?: boolean) => Pl
 
 const plurals: LocalePlural = {
   'en-US': en,
+  'ru-RU': ru,
 };
 
 export async function dynamicActivate(locale: SupportedLocale, setLoading: (v: boolean) => void) {
   setLoading(true);
-  i18n.loadLocaleData(DEFAULT_LOCALE, { plurals: plurals[DEFAULT_LOCALE] });
+  i18n.loadLocaleData(locale, { plurals: plurals[DEFAULT_LOCALE] });
   try {
     const catalog = await import(`../../locales/${locale}.js`);
     // Bundlers will either export it as default or as a named export named default.
