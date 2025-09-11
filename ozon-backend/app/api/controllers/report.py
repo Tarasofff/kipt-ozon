@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
 from app.config.config import app_config
 from app.api.dependencies import (
@@ -35,6 +35,7 @@ async def get_report(
     patient_id: int,
     hospital_id: int,
     patient_doctor_diagnose_id: int,
+    disposition: str = Query("inline", regex="^(inline|attachment)$"),
     report_service: ReportService = Depends(get_report_service),
 ):
     report_data_dump = await report_service.get_report_data(
@@ -46,7 +47,7 @@ async def get_report(
     media_type = "application/pdf"
     file_ext = "pdf"
     filename = f"report_patient_id_{patient_id}.{file_ext}"
-    headers = {"Content-Disposition": f"inline; filename={filename}"}
+    headers = {"Content-Disposition": f"{disposition}; filename={filename}"}
 
     return StreamingResponse(
         pdf_bytes,
