@@ -21,8 +21,8 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: null,
-  tokenType: null,
+  token: localStorage.getItem('token') || null,
+  tokenType: localStorage.getItem('tokenType') || null,
   loading: false,
   error: null,
 };

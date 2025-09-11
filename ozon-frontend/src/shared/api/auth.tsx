@@ -11,6 +11,5 @@ export interface LoginPayload {
 }
 
 export async function login(payload: LoginPayload) {
-  console.log('🚀 ~ payload:', payload)
   return api.post('/user/login', payload).then((res) => res.data);
 }

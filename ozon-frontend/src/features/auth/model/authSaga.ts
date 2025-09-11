@@ -20,9 +20,9 @@ function* loginWorker(action: ReturnType<typeof loginRequest>) {
     const token = data.token;
     const tokenType = data.token_type;
 
-    // сохраняем токен в localStorage
     localStorage.setItem('token', token);
     localStorage.setItem('token_type', tokenType);
+    localStorage.setItem('user', JSON.stringify(user));
 
     yield put(loginSuccess({ user, token, tokenType }));
   } catch (error: any) {

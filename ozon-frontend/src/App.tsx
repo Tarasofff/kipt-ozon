@@ -11,8 +11,11 @@ import Patients from '@/pages/patients';
 import Sessions from '@/pages/sessions';
 import { ProtectedRoute } from '@/providers/router/ui/ProtectedRoute';
 import PageLoader from '@/widgets/page-loader/ui/PageLoader';
+import { useTypedSelector } from '@/app/store/hooks';
 
 const App = () => {
+  const token = useTypedSelector((state) => state.auth.token);
+
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageLoader />}>
@@ -21,7 +24,7 @@ const App = () => {
             <Route path={APP_ROUTES.main} element={<Main />} />
             <Route path={APP_ROUTES.login} element={<Login />} />
             <Route path={APP_ROUTES.registration} element={<Registration />} />
-            <Route element={<ProtectedRoute isAuth={true} redirectPath={APP_ROUTES.main} />}>
+            <Route element={<ProtectedRoute isAuth={!!token} redirectPath={APP_ROUTES.main} />}>
               <Route path={APP_ROUTES.patients} element={<Patients />} />
               <Route path={APP_ROUTES.sessions} element={<Sessions />} />
             </Route>
