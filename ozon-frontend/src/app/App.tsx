@@ -8,7 +8,6 @@ import Layout from '@/widgets/layout/ui/Layout';
 import Login from '@/pages/login';
 import Registration from '@/pages/registration';
 import Patients from '@/pages/patients';
-import Sessions from '@/pages/sessions';
 import { ProtectedRoute } from '@/providers/router/ui/ProtectedRoute';
 import PageLoader from '@/widgets/page-loader/ui/PageLoader';
 import { useTypedSelector } from '@/app/store/hooks';
@@ -26,7 +25,6 @@ const App = () => {
             <Route path={APP_ROUTES.registration} element={<Registration />} />
             <Route element={<ProtectedRoute isAuth={!!token} redirectPath={APP_ROUTES.main} />}>
               <Route path={APP_ROUTES.patients} element={<Patients />} />
-              <Route path={APP_ROUTES.sessions} element={<Sessions />} />
             </Route>
           </Routes>
         </Layout>

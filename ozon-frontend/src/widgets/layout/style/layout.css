@@ -8,8 +8,5 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
-  /* фиксированный фон */
-  /* background: url('src/image/background.jpg') no-repeat center center fixed; */
   background-size: cover;
 }

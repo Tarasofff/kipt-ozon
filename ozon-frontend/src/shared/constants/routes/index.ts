@@ -3,5 +3,4 @@ export const APP_ROUTES = {
   login: '/login',
   registration: '/registration',
   patients: '/patients',
-  sessions: '/sessions',
 };

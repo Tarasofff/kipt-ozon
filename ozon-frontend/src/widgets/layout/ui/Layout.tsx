@@ -2,7 +2,6 @@ import Header from '@/widgets/header/ui/Header';
 import '../style/layout.css';
 import { ReactNode } from 'react';
 import Footer from '@/widgets/footer/ui/Footer';
-import LanguageSwitcher from '@/features/i18n/LanguageSwitcher';
 
 interface LayoutProps {
   children: ReactNode;
