@@ -8,6 +8,6 @@ export interface LoginPayload {
 
 export async function login(payload: LoginPayload) {
   return axios
-    .post(API_DEFAULT_URl + '/user/login', payload, { headers: { 'Content-Type': 'application/json' } })
+    .post(`${API_DEFAULT_URl}/user/login`, payload, { headers: { 'Content-Type': 'application/json' } })
     .then((res) => res.data);
 }

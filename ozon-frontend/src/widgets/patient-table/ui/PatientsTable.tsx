@@ -1,5 +1,8 @@
+import { useTypedSelector } from '@/app/store';
+import { getPatientById } from '@/shared/api/patients';
 import PatientInfoModalWindow from '@/widgets/patient-info-modal-window';
-import { useState } from 'react';
+import { PatientWithRelations } from '@/widgets/patient-info-modal-window/ui/PatientInfoModalWindow';
+import { useEffect, useState } from 'react';
 
 type Patient = {
   id: number;
@@ -18,7 +21,31 @@ interface PatientsTableProps {
 }
 
 export default function PatientsTable({ patients }: PatientsTableProps) {
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const { token, tokenType } = useTypedSelector((state) => state.auth);
+
+  if (!token || !tokenType) throw new Error('Not authorized');
+
+  const [selectedPatient, setSelectedPatient] = useState<PatientWithRelations | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Загружаем пациента по ID
+  useEffect(() => {
+    if (!selectedPatientId) return;
+
+    setLoading(true);
+
+    (async () => {
+      try {
+        const patient = await getPatientById(token, tokenType, selectedPatientId);
+        setSelectedPatient(patient);
+      } catch (err) {
+        console.error('Ошибка загрузки пациента:', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [selectedPatientId, token, tokenType]);
 
   return (
     <>
@@ -42,7 +69,7 @@ export default function PatientsTable({ patients }: PatientsTableProps) {
             {patients.map((user) => (
               <tr
                 key={user.id}
-                onClick={() => setSelectedPatient(user)}
+                onClick={() => setSelectedPatientId(user.id)}
                 className="hover:bg-gray-800 transition-colors even:bg-gray-900 odd:bg-gray-950"
               >
                 <td className="px-4 py-3 border-b border-gray-700">{user.id}</td>
@@ -70,7 +97,13 @@ export default function PatientsTable({ patients }: PatientsTableProps) {
         </table>
       </div>
 
-      <PatientInfoModalWindow patient={selectedPatient} onClose={() => setSelectedPatient(null)} />
+      <PatientInfoModalWindow
+        patient={loading ? null : selectedPatient}
+        onClose={() => {
+          setSelectedPatientId(null);
+          setSelectedPatient(null);
+        }}
+      />
     </>
   );
 }

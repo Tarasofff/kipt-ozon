@@ -26,10 +26,10 @@ export default function Header() {
             <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all group-hover:w-full"></span>
           </Link>
 
-          <Link to={APP_ROUTES.sessions} className="relative text-white font-medium px-3 py-2 group">
+          {/* <Link to={APP_ROUTES.sessions} className="relative text-white font-medium px-3 py-2 group">
             Сесии
             <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-yellow-400 transition-all group-hover:w-full"></span>
-          </Link>
+          </Link> */}
 
           <Link to={APP_ROUTES.main} className="relative text-white font-medium px-3 py-2 group">
             Главная

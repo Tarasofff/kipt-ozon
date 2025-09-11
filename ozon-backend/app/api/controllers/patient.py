@@ -43,7 +43,7 @@ async def create(
 
 @router.get(
     "/{patient_id}",
-    response_model=PatientReadSchema,
+    # response_model=PatientReadSchema, #TODO
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(check_patient_exists)],
 )
@@ -51,12 +51,12 @@ async def get_by_id(
     patient_id: int,
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
-    return await patient_repo.get_by_id(patient_id)
+    return await patient_repo.get_by_id(patient_id, True)
 
 
 @router.get("/", response_model=List[PatientReadSchema], status_code=status.HTTP_200_OK)
 async def get_all(
-    limit: int = Query(10, ge=1, le=100),  # по умолчанию 10, от 1 до 100
+    limit: int = Query(10, ge=1, le=10),  # по умолчанию 10, от 1 до 10
     offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):

@@ -6,8 +6,8 @@ import { HashRouter } from 'react-router-dom';
 
 import { store } from '@/app/store';
 
+import { LanguageProvider } from '../features/i18n';
 import App from './App';
-import { LanguageProvider } from './features/i18n';
 
 const container = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(container);
