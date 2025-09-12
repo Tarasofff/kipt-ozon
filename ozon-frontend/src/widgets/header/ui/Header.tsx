@@ -3,7 +3,7 @@ import { APP_ROUTES } from '@/shared/constants/routes';
 import LanguageSwitcher from '@/features/i18n/LanguageSwitcher';
 import { useTypedDispatch, useTypedSelector } from '@/app/store/hooks';
 import { clearAuthData } from '@/utils/localStorageUtils';
-import { logout } from '@/features/auth/model/authSlice';
+import { logout } from '@/features/auth/slice/authSlice';
 
 export default function Header() {
   const token = useTypedSelector((state) => state.auth.token);

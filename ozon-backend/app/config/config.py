@@ -22,6 +22,7 @@ class ApiV1Prefix(BaseModel):
     patient: str = "/patient"
     user: str = "/user"
     report: str = "/report"
+    diagnose: str = "/diagnose"
 
 
 class UserRole:

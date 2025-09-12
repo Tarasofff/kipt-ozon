@@ -161,9 +161,6 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
           <p>
             <strong>Активен:</strong> {patient.is_active ? 'Да' : 'Нет'}
           </p>
-          <p>
-            <strong>План. сессии:</strong> {patient.planned_session_count ?? 0}
-          </p>
         </div>
 
         {/* Диагнозы */}

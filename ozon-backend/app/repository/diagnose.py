@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.db.models import Diagnose
 
 
@@ -18,7 +18,12 @@ class DiagnoseRepository:
         await self.session.flush()
         return value
 
-    async def get_all(self) -> list[Diagnose]:
-        stmt = select(Diagnose)
+    async def get_all(self, offset: int = 0, limit: int = 100) -> list[Diagnose]:
+        stmt = select(Diagnose).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_count(self) -> int:
+        stmt = select(func.count()).select_from(Diagnose)
+        result = await self.session.execute(stmt)
+        return result.scalar_one()

@@ -49,7 +49,7 @@ export default function PatientsTable({ patients }: PatientsTableProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl shadow-lg">
+      <div className="overflow-x-auto rounded-xl shadow-lg pt-1.5">
         <table className="min-w-full border border-gray-700 text-sm text-left text-gray-200 bg-gray-900">
           <thead className="bg-gray-800 text-gray-300 uppercase text-xs font-semibold">
             <tr>
@@ -61,7 +61,6 @@ export default function PatientsTable({ patients }: PatientsTableProps) {
               <th className="px-4 py-3 border-b border-gray-700">Дата рождения</th>
               <th className="px-4 py-3 border-b border-gray-700">Email</th>
               <th className="px-4 py-3 border-b border-gray-700">Активен</th>
-              <th className="px-4 py-3 border-b border-gray-700">План. сессии</th>
             </tr>
           </thead>
 
@@ -90,7 +89,6 @@ export default function PatientsTable({ patients }: PatientsTableProps) {
                     <span className="px-2 py-1 bg-red-600/30 text-red-400 rounded-full text-xs">Неактивен</span>
                   )}
                 </td>
-                <td className="px-4 py-3 border-b border-gray-700 text-center">{user.planned_session_count}</td>
               </tr>
             ))}
           </tbody>

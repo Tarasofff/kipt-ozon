@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { login } from '@/shared/api/auth';
-import { loginRequest, loginSuccess, loginFailure } from './authSlice';
+import { loginRequest, loginSuccess, loginFailure } from '../slice/authSlice';
 import { saveAuthData } from '@/utils/localStorageUtils';
 
 function* loginWorker(action: ReturnType<typeof loginRequest>) {

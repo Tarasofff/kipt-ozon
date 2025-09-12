@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTypedDispatch, useTypedSelector } from '@/app/store/hooks';
-import { loginRequest } from '@/features/auth/model/authSlice';
+import { loginRequest } from '@/features/auth/slice/authSlice';
 
 export default function Login() {
   const [phone, setPhone] = useState('');

@@ -36,6 +36,7 @@ class Patient(IdIntPkMixin, TimestampMixin, Base):
         Boolean, default=True, nullable=False, server_default=text("true")
     )
 
+    # TODO remove
     planned_session_count: Mapped[int] = mapped_column(Integer, nullable=False)
 
     patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(

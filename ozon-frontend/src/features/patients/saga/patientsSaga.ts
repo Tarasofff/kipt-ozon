@@ -1,5 +1,5 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { fetchPatientsRequest, fetchPatientsSuccess, fetchPatientsFailure } from './patientsSlice';
+import { fetchPatientsRequest, fetchPatientsSuccess, fetchPatientsFailure } from '../slice/patientsSlice';
 import { getAllPatients } from '@/shared/api/patients';
 
 function* fetchAllPatientsWorker() {

@@ -1,7 +1,7 @@
 from app.db.models import User
 from app.repository import UserRepository
 from app.schemas.user import (
-    UpdateUserSchema,
+    UserPartialSchema,
     UserCreateSchema,
     UserLoginSchema,
     UserReadSchema,
@@ -49,6 +49,6 @@ class UserService:
     async def get_by_phone(self, phone: str):
         return await self.user_repo.get_by_phone(phone)
 
-    async def update(self, id: int, user_data: UpdateUserSchema):
+    async def update(self, id: int, user_data: UserPartialSchema):
         fields_to_update = user_data.model_dump(exclude_none=True)
         return await self.user_repo.update(id, fields_to_update)

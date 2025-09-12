@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { fetchPatientsReducer } from '../reducers/fetchPatientsReducer';
+import { createPatientReducer } from '../reducers/createPatientReducer';
 
 export interface Patient {
   id: number;
@@ -12,7 +14,18 @@ export interface Patient {
   planned_session_count: number;
 }
 
-interface PatientsState {
+export interface CreatePatient {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  phone: string;
+  date_of_birth: string;
+  email: string | null;
+  doctor_id: number | null;
+  diagnose_id: number | null;
+}
+
+export interface PatientsState {
   list: Patient[];
   loading: boolean;
   error: string | null;
@@ -28,18 +41,8 @@ export const patientsSlice = createSlice({
   name: 'patients',
   initialState,
   reducers: {
-    fetchPatientsRequest: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    fetchPatientsSuccess: (state, action: PayloadAction<Patient[]>) => {
-      state.loading = false;
-      state.list = action.payload;
-    },
-    fetchPatientsFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
+    ...fetchPatientsReducer,
+    ...createPatientReducer,
   },
 });
 

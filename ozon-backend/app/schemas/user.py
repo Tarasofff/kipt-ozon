@@ -44,7 +44,7 @@ class UserLoginSchema(TokenSchema):
     role_id: int
 
 
-class UpdateUserSchema(PasswordHashMixin, DateParser, BaseModel):
+class UserPartialSchema(PasswordHashMixin, DateParser, BaseModel):
     first_name: Optional[str]
     middle_name: Optional[str]
     last_name: Optional[str]

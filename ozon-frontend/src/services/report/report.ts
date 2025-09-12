@@ -9,7 +9,6 @@ export const processingReport = async (
   download = false,
 ) => {
   try {
-    // запрос на сервер за PDF
     const response = await getReport(token, tokenType, patientId, hospitalId, patientDoctorDiagnoseId);
 
     const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -21,7 +20,9 @@ export const processingReport = async (
       // создаём ссылку и имитируем клик для скачивания
       const link = document.createElement('a');
       link.href = url;
-      link.download = `report_patient_${patientId}.pdf`; // имя файла
+      link.download = `report_patient-${patientId}_hospital-${hospitalId}_diagnose-${patientDoctorDiagnoseId}_${new Date()
+        .toISOString()
+        .slice(0, 10)}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
