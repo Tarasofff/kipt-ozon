@@ -13,10 +13,17 @@ class PatientDoctorDiagnoseRepository:
         return result.scalar_one_or_none()
 
     async def create(
-        self, patient_id: int, doctor_id: int, diagnose_id: int
+        self,
+        patient_id: int,
+        doctor_id: int,
+        diagnose_id: int,
+        planned_session_count: int = 0,
     ) -> PatientDoctorDiagnose:
         value = PatientDoctorDiagnose(
-            patient_id=patient_id, doctor_id=doctor_id, diagnose_id=diagnose_id
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            diagnose_id=diagnose_id,
+            planned_session_count=planned_session_count,
         )
         self.session.add(value)
         await self.session.flush()

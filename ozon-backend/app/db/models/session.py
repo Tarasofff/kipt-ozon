@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Session(IdIntPkMixin, TimestampMixin, Base):
     __tablename__ = TableNames.SESSION
 
-    notes: Mapped[str] = mapped_column(String(64), nullable=True)
+    notes: Mapped[str] = mapped_column(String(1024), nullable=True)
 
     session_duration_ms: Mapped[int] = mapped_column(
         Integer, nullable=False, comment="Session duration in ms"
@@ -29,7 +29,7 @@ class Session(IdIntPkMixin, TimestampMixin, Base):
     )
 
     nurse_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(f"{TableNames.NURSE}.id"), nullable=False
+        Integer, ForeignKey(f"{TableNames.NURSE}.id"), nullable=True
     )
 
     nurse: Mapped[Nurse] = relationship(back_populates="session")

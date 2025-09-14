@@ -13,6 +13,11 @@ class RoleRepository:
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
+    async def get_by_id(self, id: int) -> Role | None:
+        stmt = select(Role).where(Role.id == id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def create(self, name: str) -> Role:
         role = Role(name=name)
         self.session.add(role)

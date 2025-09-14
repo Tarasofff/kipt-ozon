@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
 from app.config.config import app_config
 from app.api.dependencies import (
-    check_patient_exists,
+    check_patient_exists_by_id,
     check_hospital_exists,
     check_patient_doctor_diagnose_exists,
     check_token,
@@ -26,7 +26,7 @@ def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportSe
     "/patient/{patient_id}/hospital/{hospital_id}/patient-doctor-diagnose/{patient_doctor_diagnose_id}",
     status_code=status.HTTP_200_OK,
     dependencies=[
-        Depends(check_patient_exists),
+        Depends(check_patient_exists_by_id),
         Depends(check_hospital_exists),
         Depends(check_patient_doctor_diagnose_exists),
     ],
@@ -38,9 +38,7 @@ async def get_report(
     disposition: str = Query("inline", regex="^(inline|attachment)$"),
     report_service: ReportService = Depends(get_report_service),
 ):
-    report_data_dump = await report_service.get_report_data(
-        patient_id, hospital_id, patient_doctor_diagnose_id
-    )
+    report_data_dump = await report_service.get_report_data(patient_id, hospital_id, patient_doctor_diagnose_id)
 
     pdf_bytes = await report_service.get_pdf_bytes(report_data_dump)
 

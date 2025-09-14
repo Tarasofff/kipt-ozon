@@ -42,7 +42,7 @@
     <div class="card">
       <h2>Выписка</h2>
       <p><b>Диагноз:</b> {{ report.diagnose.name }}</p>
-      <p><b>Планируемое количество сеансов:</b> {{ report.patient.planned_session_count }}</p>
+      <p><b>Планируемое количество сеансов:</b> {{ report.planned_session_count }}</p>
       <p>
         <b>Проведенное количество сеансов:</b> {{ report.session | length }}{% if report.session %}
           , за период с {{ report.session[0].created_at }} по {{ report.session[-1].updated_at }}{% endif %}
@@ -76,7 +76,13 @@
           <td>{{ row.session_duration_ms }}</td>
           <td>{{ row.post.number }}</td>
           <td>{{ row.post.cabinet.number }}</td>
-          <td>{{ row.nurse.user.middle_name }} {{ row.nurse.user.first_name }} {{ row.nurse.user.last_name }}</td>
+          <td>
+            {% if row.nurse %}
+            {{ row.nurse.user.middle_name }} {{ row.nurse.user.first_name }} {{ row.nurse.user.last_name }}
+            {% else %}
+            Нет
+            {% endif %}
+          </td>
           <td>{{ "активен" if row.is_active else "завершен" }}</td>
           </tr>
           {% endfor %}

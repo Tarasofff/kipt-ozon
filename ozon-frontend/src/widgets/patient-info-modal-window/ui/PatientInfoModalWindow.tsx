@@ -32,20 +32,6 @@ interface Post {
   cabinet: Cabinet;
 }
 
-interface Session {
-  id: number;
-  notes: string | null;
-  is_active: boolean;
-  session_duration_ms: number;
-  ozone_concentration: number;
-  post: Post;
-}
-
-interface Diagnose {
-  id: number;
-  name: string;
-}
-
 interface User {
   id: number;
   first_name: string;
@@ -53,6 +39,26 @@ interface User {
   last_name: string;
   email: string;
   phone: string;
+}
+
+interface Nurse {
+  id: number;
+  user: User;
+}
+
+interface Session {
+  id: number;
+  notes: string | null;
+  is_active: boolean;
+  session_duration_ms: number;
+  ozone_concentration: number;
+  post: Post;
+  nurse: Nurse;
+}
+
+interface Diagnose {
+  id: number;
+  name: string;
 }
 
 interface Doctor {
@@ -65,6 +71,7 @@ interface PatientDoctorDiagnose {
   diagnose: Diagnose;
   session: Session[];
   doctor: Doctor;
+  planned_session_count: number;
 }
 
 export interface PatientWithRelations {
@@ -76,7 +83,6 @@ export interface PatientWithRelations {
   email: string | null;
   date_of_birth: string;
   is_active: boolean;
-  planned_session_count: number;
   created_at: string;
   updated_at: string;
   patient_doctor_diagnose: PatientDoctorDiagnose[];
@@ -187,23 +193,29 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
                   {openDiagnose === pdd.id && (
                     <div className="p-4 space-y-3">
                       {pdd.doctor?.user ? (
-                        <div className="mb-3">
-                          <strong>Лечащий врач:</strong>{' '}
-                          {`${pdd.doctor.user.last_name ?? ''} ${pdd.doctor.user.first_name ?? ''} ${
-                            pdd.doctor.user.middle_name ?? ''
-                          }`}
-                          {pdd.doctor.user.email ? (
-                            <>
-                              {' '}
-                              (
-                              <a href={`mailto:${pdd.doctor.user.email}`} className="text-blue-400">
-                                {pdd.doctor.user.email}
-                              </a>
-                              , {pdd.doctor.user.phone || 'телефон не указан'})
-                            </>
-                          ) : (
-                            <> ({pdd.doctor.user.phone || 'телефон не указан'})</>
-                          )}
+                        <div className="mb-3 space-y-2 text-white">
+                          <div>
+                            <strong>Лечащий врач:</strong>{' '}
+                            {`${pdd.doctor.user.last_name ?? ''} ${pdd.doctor.user.first_name ?? ''} ${
+                              pdd.doctor.user.middle_name ?? ''
+                            }`}
+                          </div>
+
+                          <div>
+                            <strong>Телефон:</strong> {pdd.doctor.user.phone}
+                          </div>
+
+                          <div>
+                            <strong>Email:</strong> {pdd.doctor.user.email}
+                          </div>
+
+                          <div>
+                            <strong>Планируемое количество сеансов:</strong> {pdd.planned_session_count}
+                          </div>
+
+                          <div>
+                            <strong>Количество сеансов:</strong> {pdd.session.length}
+                          </div>
                         </div>
                       ) : (
                         <p className="text-gray-400">Лечащий врач не указан</p>
@@ -217,17 +229,24 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
                             {pdd.session.map((session) => (
                               <div key={session.id} className="border border-gray-700 rounded-lg p-3 bg-gray-800">
                                 <p>
-                                  <strong>ID:</strong> {session.id}
+                                  <strong>Реестровый номер:</strong> {session.id}
                                 </p>
-                                <p>
+                                {/* TODO статусы сесии */}
+                                {/* <p>
                                   <strong>Активна:</strong> {session.is_active ? 'Да' : 'Нет'}
-                                </p>
+                                </p> */}
                                 <p>
                                   <strong>Длительность:</strong> {Math.round((session.session_duration_ms ?? 0) / 1000)}{' '}
                                   сек
                                 </p>
                                 <p>
                                   <strong>Концентрация озона mg/l:</strong> {session.ozone_concentration ?? '—'}
+                                </p>
+                                <p>
+                                  <strong>Медсестра:</strong>{' '}
+                                  {session.nurse
+                                    ? `${session.nurse.user.first_name} ${session.nurse.user.middle_name} ${session.nurse.user.last_name}`
+                                    : 'Нет'}
                                 </p>
 
                                 {session.post?.cabinet?.hospital ? (
@@ -243,9 +262,9 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
                                     </p>
                                     <p>
                                       <strong>Адрес:</strong>{' '}
-                                      {`${session.post.cabinet.hospital.address?.city_name ?? ''}, ${
-                                        session.post.cabinet.hospital.address?.street_name ?? ''
-                                      } ${session.post.cabinet.hospital.address?.building_number ?? ''}`}
+                                      {`${session.post.cabinet.hospital.address.city_name ?? ''}, ${
+                                        session.post.cabinet.hospital.address.street_name ?? ''
+                                      } ${session.post.cabinet.hospital.address.building_number ?? ''}`}
                                     </p>
                                   </div>
                                 ) : (

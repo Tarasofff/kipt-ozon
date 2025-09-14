@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchPatientsReducer } from '../reducers/fetchPatientsReducer';
 import { createPatientReducer } from '../reducers/createPatientReducer';
+import { PatientDiagnose } from '@/widgets/save-patient-modal-window/ui/SavePatientModalWindow';
 
 export interface Patient {
   id: number;
@@ -11,7 +12,6 @@ export interface Patient {
   date_of_birth: string;
   email?: string | null;
   is_active: boolean;
-  planned_session_count: number;
 }
 
 export interface CreatePatient {
@@ -21,8 +21,8 @@ export interface CreatePatient {
   phone: string;
   date_of_birth: string;
   email: string | null;
-  doctor_id: number | null;
-  diagnose_id: number | null;
+  user_id: number | null;
+  diagnose_ids: PatientDiagnose[];
 }
 
 export interface PatientsState {
@@ -46,4 +46,11 @@ export const patientsSlice = createSlice({
   },
 });
 
-export const { fetchPatientsRequest, fetchPatientsSuccess, fetchPatientsFailure } = patientsSlice.actions;
+export const {
+  fetchPatientsRequest,
+  fetchPatientsSuccess,
+  fetchPatientsFailure,
+  createPatientFailure,
+  createPatientRequest,
+  createPatientSuccess,
+} = patientsSlice.actions;

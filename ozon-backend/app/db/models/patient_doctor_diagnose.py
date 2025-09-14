@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
 from app.db.table_names import TableNames
@@ -26,6 +26,10 @@ class PatientDoctorDiagnose(IdIntPkMixin, TimestampMixin, Base):
         nullable=True,
     )
 
+    planned_session_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+
     patient: Mapped[Patient] = relationship(back_populates="patient_doctor_diagnose")
     doctor: Mapped[Doctor] = relationship(back_populates="patient_doctor_diagnose")
     diagnose: Mapped[Diagnose] = relationship(back_populates="patient_doctor_diagnose")
@@ -38,5 +42,8 @@ class PatientDoctorDiagnose(IdIntPkMixin, TimestampMixin, Base):
             "patient_id",
             "doctor_id",
             "diagnose_id",
+        ),
+        CheckConstraint(
+            "planned_session_count >= 0", name="ck_planned_session_count_non_negative"
         ),
     )

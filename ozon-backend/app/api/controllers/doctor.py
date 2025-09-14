@@ -32,9 +32,11 @@ async def get_all(
     doctors = await doctor_repo.get_all(offset=offset, limit=limit)
     count = await doctor_repo.get_count()
 
-    return AllDoctorsResponseSchema.model_validate({
-        "doctors": doctors,
-        "total": count,
-        "limit": limit,
-        "offset": offset,
-    })
+    return AllDoctorsResponseSchema.model_validate(
+        {
+            "doctors": doctors,
+            "total": count,
+            "limit": limit,
+            "offset": offset,
+        }
+    )

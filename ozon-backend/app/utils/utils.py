@@ -17,13 +17,20 @@ async def log_registered_routes(app: FastAPI):
     yield
 
 
-def to_date(date_str: str) -> date:
-    return datetime.strptime(date_str, "%d.%m.%Y").date()
-
-
 def get_current_date():
     today = datetime.today()
     return today.strftime("%d.%m.%Y")
+
+
+def to_date(date_str: str) -> date:
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        pass
+    try:
+        return datetime.strptime(date_str, "%d.%m.%Y").date()
+    except ValueError:
+        raise ValueError("Неверный формат даты")
 
 
 class DateParser:
@@ -38,12 +45,3 @@ class DateParser:
         elif isinstance(dob, date):
             return dob
         return None
-
-
-# class BaseModelExcludeNone(BaseModel):
-#     model_config = ConfigDict(strict=True)
-
-#     def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-#         if "exclude_none" not in kwargs:
-#             kwargs["exclude_none"] = True
-#         return super().model_dump(*args, **kwargs)

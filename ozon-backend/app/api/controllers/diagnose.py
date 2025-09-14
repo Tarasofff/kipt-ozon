@@ -32,9 +32,11 @@ async def get_all(
     diagnoses = await diagnose_repo.get_all(offset=offset, limit=limit)
     count = await diagnose_repo.get_count()
 
-    return AllDiagnosesResponseSchema.model_validate({
-        "diagnoses": diagnoses,
-        "total": count,
-        "limit": limit,
-        "offset": offset,
-    })
+    return AllDiagnosesResponseSchema.model_validate(
+        {
+            "diagnoses": diagnoses,
+            "total": count,
+            "limit": limit,
+            "offset": offset,
+        }
+    )

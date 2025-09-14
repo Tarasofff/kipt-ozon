@@ -2,8 +2,6 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import date, datetime
 
-# TODO
-
 
 class BaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -42,7 +40,7 @@ class SessionSchema(BaseSchema):
     ozone_concentration: float
     is_active: bool
     post: PostSchema
-    nurse: NurseSchema
+    nurse: Optional[NurseSchema]
 
 
 class PatientSessionListSchema(BaseSchema):
@@ -63,6 +61,7 @@ class PatientDoctorDiagnoseSchema(BaseSchema):
     id: int
     doctor: DoctorSchema
     diagnose: DiagnoseSchema
+    planned_session_count: int
 
 
 class AddressSchema(BaseSchema):
@@ -90,7 +89,7 @@ class PatientSchema(BaseSchema):
     email: Optional[str]
     date_of_birth: date
     is_active: bool
-    planned_session_count: int
+    notes: Optional[str]
 
 
 class PatientReportSchema(PatientSessionListSchema):
@@ -98,3 +97,4 @@ class PatientReportSchema(PatientSessionListSchema):
     hospital: HospitalSchema
     doctor: DoctorSchema
     diagnose: DiagnoseSchema
+    planned_session_count: int

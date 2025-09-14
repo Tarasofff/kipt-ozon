@@ -43,7 +43,9 @@ class ReportService:
         self.patient_repo = PatientRepository(session=session)
         self.hospital_repo = HospitalRepository(session=session)
 
-    async def _get_session_data(self, patient_doctor_diagnose_id: int, hospital_id: int):
+    async def _get_session_data(
+        self, patient_doctor_diagnose_id: int, hospital_id: int
+    ):
         stmt = (
             select(Session)
             .join(Session.post)
@@ -136,7 +138,9 @@ class ReportService:
     ):
         patient_dump = await self._get_patient_data(patient_id)
 
-        session_dump = await self._get_session_data(patient_doctor_diagnose_id, hospital_id)
+        session_dump = await self._get_session_data(
+            patient_doctor_diagnose_id, hospital_id
+        )
 
         hospital_dump = await self._get_hospital_data(hospital_id)
 

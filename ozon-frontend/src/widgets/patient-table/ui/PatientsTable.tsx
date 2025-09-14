@@ -13,7 +13,6 @@ type Patient = {
   date_of_birth: string;
   email?: string | null;
   is_active: boolean;
-  planned_session_count: number;
 };
 
 interface PatientsTableProps {

@@ -3,7 +3,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.db.models import Patient
 from sqlalchemy.orm import selectinload
-from app.db.models import PatientDoctorDiagnose, Doctor, User, Diagnose, Session, Post, Cabinet, Hospital
+from app.db.models import (
+    PatientDoctorDiagnose,
+    Doctor,
+    User,
+    Diagnose,
+    Session,
+    Post,
+    Cabinet,
+    Hospital,
+    Nurse,
+)
 
 
 class PatientRepository:
@@ -16,17 +26,25 @@ class PatientRepository:
         if relations:
             stmt = stmt.options(
                 selectinload(Patient.patient_doctor_diagnose)
-                .load_only(PatientDoctorDiagnose.id)
+                .load_only(
+                    PatientDoctorDiagnose.id,
+                    PatientDoctorDiagnose.planned_session_count,
+                )
                 .joinedload(PatientDoctorDiagnose.doctor)
                 .load_only(Doctor.id)
                 .joinedload(Doctor.user)
-                .load_only(User.id, User.first_name, User.last_name, User.middle_name, User.phone, User.email),
+                .load_only(
+                    User.id,
+                    User.first_name,
+                    User.last_name,
+                    User.middle_name,
+                    User.phone,
+                    User.email,
+                ),
                 selectinload(Patient.patient_doctor_diagnose)
                 .load_only(PatientDoctorDiagnose.id)
                 .joinedload(PatientDoctorDiagnose.diagnose)
-                .load_only(
-                    Diagnose.id, Diagnose.name
-                ),
+                .load_only(Diagnose.id, Diagnose.name),
                 selectinload(Patient.patient_doctor_diagnose)
                 .load_only(PatientDoctorDiagnose.id)
                 .joinedload(PatientDoctorDiagnose.session)
@@ -35,7 +53,8 @@ class PatientRepository:
                     Session.notes,
                     Session.is_active,
                     Session.session_duration_ms,
-                    Session.ozone_concentration
+                    Session.ozone_concentration,
+                    Session.notes,
                 )
                 .joinedload(Session.post)
                 .load_only(Post.id, Post.number)
@@ -43,17 +62,35 @@ class PatientRepository:
                 .load_only(Cabinet.id, Cabinet.number)
                 .joinedload(Cabinet.hospital)
                 .load_only(Hospital.id, Hospital.name, Hospital.number)
-                .joinedload(Hospital.address)
+                .joinedload(Hospital.address),
+                selectinload(Patient.patient_doctor_diagnose)
+                .joinedload(PatientDoctorDiagnose.session)
+                .joinedload(Session.nurse)
+                .load_only(Nurse.id)
+                .joinedload(Nurse.user)
+                .load_only(
+                    User.id,
+                    User.first_name,
+                    User.last_name,
+                    User.middle_name,
+                    User.phone,
+                    User.email,
+                ),
             )
 
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_all(self, offset: int = 0, limit: int = 100) -> List[Patient]:
+    async def get_all(self, offset: int = 0, limit: int = 10) -> List[Patient]:
         stmt = select(Patient).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         patients = result.scalars().all()
         return list(patients)
+
+    async def get_by_phone(self, phone: str) -> Optional[Patient]:
+        stmt = select(Patient).where(Patient.phone == phone)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def create(self, patient: Patient) -> Patient:
         self.session.add(patient)

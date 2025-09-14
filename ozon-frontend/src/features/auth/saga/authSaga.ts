@@ -8,6 +8,7 @@ function* loginWorker(action: ReturnType<typeof loginRequest>) {
     const data: any = yield call(login, action.payload);
 
     const user = {
+      id: data.id,
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,

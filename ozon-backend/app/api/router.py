@@ -1,5 +1,11 @@
 from fastapi import APIRouter
-from app.api.controllers import user_router, patient_router, report_router, doctor_router, diagnose_router
+from app.api.controllers import (
+    user_router,
+    patient_router,
+    report_router,
+    doctor_router,
+    diagnose_router,
+)
 
 api_router = APIRouter()
 

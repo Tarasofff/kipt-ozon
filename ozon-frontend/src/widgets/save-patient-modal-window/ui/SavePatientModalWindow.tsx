@@ -3,22 +3,30 @@ import { Dialog } from '@headlessui/react';
 import { handlePhoneInput, handleTextInput } from '@/utils/inputUtils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
-import { fetchDoctorsRequest } from '@/features/doctors/slice/doctorsSlice';
 import { fetchDiagnosesRequest } from '@/features/diagnoses/slice/diagnosesSlice';
+import { createPatientRequest } from '@/features/patients/slice/patientsSlice';
+
+export interface PatientDiagnose {
+  id: number | null;
+  planned_session_count: number;
+}
+
+export interface CreatePatient {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  phone: string;
+  date_of_birth: string;
+  email: string | null;
+  user_id: number;
+  diagnose_ids: PatientDiagnose[];
+  notes: string | null;
+}
 
 interface SavePatientModalWindowProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const getDoctorsState = () => {
-  const doctors = useSelector((state: RootState) => state.doctors.doctors);
-  const totalDoctors = useSelector((state: RootState) => state.doctors.total);
-  const offsetDoctors = useSelector((state: RootState) => state.doctors.offset);
-  const limitDoctors = useSelector((state: RootState) => state.doctors.limit);
-
-  return { doctors, totalDoctors, offsetDoctors, limitDoctors };
-};
 
 const getDiagnosesState = () => {
   const diagnoses = useSelector((state: RootState) => state.diagnoses.diagnoses);
@@ -30,72 +38,56 @@ const getDiagnosesState = () => {
 };
 
 export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientModalWindowProps) {
-  const { doctors, totalDoctors, offsetDoctors, limitDoctors } = getDoctorsState();
+  const user = useSelector((state: RootState) => state.auth.user);
+  if (!user)
+    return (
+      <div>
+        <h1>Unauthorized</h1>
+      </div>
+    );
+
   const { diagnoses, totalDiagnoses, offsetDiagnoses, limitDiagnoses } = getDiagnosesState();
+
   const dispatch = useDispatch();
 
-  const [isDiagnoseDropdownOpen, setIsDiagnoseDropdownOpen] = useState(false);
-  const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
+  const [isDiagnoseDropdownOpen, setIsDiagnoseDropdownOpen] = useState<number | null>(null);
 
-  const [form, setForm] = useState<{
-    first_name: string | null;
-    middle_name: string | null;
-    last_name: string | null;
-    phone: string | null;
-    date_of_birth: string | null;
-    email: string | null;
-    doctor_id: number | null;
-    diagnose_id: number | null;
-  }>({
-    first_name: null,
-    middle_name: null,
-    last_name: null,
-    phone: null,
-    date_of_birth: null,
+  const [form, setForm] = useState<CreatePatient>({
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    phone: '',
+    date_of_birth: '',
     email: null,
-    doctor_id: null,
-    diagnose_id: null,
+    user_id: user.id,
+    diagnose_ids: [],
+    notes: null,
   });
 
-  const handleChange = (field: string, value: string | number | null) => {
+  const handleChange = (field: string, value: string | number | null | PatientDiagnose[]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleClear = () => {
     setForm({
-      first_name: null,
-      middle_name: null,
-      last_name: null,
-      phone: null,
-      date_of_birth: null,
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      phone: '',
+      date_of_birth: '',
       email: null,
-      doctor_id: null,
-      diagnose_id: null,
+      user_id: user.id,
+      diagnose_ids: [],
+      notes: null,
     });
   };
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    if (doctors.length === 0) {
-      dispatch(fetchDoctorsRequest({ offset: 0, limit: 10 }));
-    }
-
-    if (diagnoses.length === 0) {
+    if (!isOpen && diagnoses.length === 0) {
       dispatch(fetchDiagnosesRequest({ offset: 0, limit: 10 }));
     }
   }, [dispatch, isOpen]);
 
-  //TODO test this
-  const handleDoctorsScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
-
-    if (bottom && doctors.length < totalDoctors) {
-      dispatch(fetchDoctorsRequest({ offset: offsetDoctors + limitDoctors, limit: limitDoctors }));
-    }
-  };
-
-  //TODO test this
   const handleDiagnosesScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
 
@@ -117,9 +109,10 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
     form.date_of_birth &&
     form.date_of_birth.trim() !== '';
 
-  //TODO
   const handleSubmit = () => {
-    console.log('Отправка на сервер:', form);
+    if (isFormValid) {
+      dispatch(createPatientRequest(form));
+    }
     onClose();
   };
 
@@ -197,139 +190,108 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
 
-          {/* TODO вынести в отдельный виджет */}
-          {/* Кастомный dropdown для докторов */}
-          <div className="relative">
-            <button
-              className={`w-full px-3 py-2 rounded-lg text-left bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400`}
-              onClick={() => setIsDoctorDropdownOpen((prev) => !prev)}
-            >
-              {form.doctor_id
-                ? `${doctors.find((doctor) => doctor.id === form.doctor_id)?.user.first_name} ${doctors.find(
-                    (doctor) => doctor.id === form.doctor_id,
-                  )?.user.middle_name} ${doctors.find((doctor) => doctor.id === form.doctor_id)?.user.last_name}`
-                : 'Лечащий врач'}
-            </button>
-            {isDoctorDropdownOpen && (
-              <div
-                className="absolute z-10 mt-1 w-full max-h-40 overflow-y-auto bg-gray-800 border border-gray-700 rounded-lg"
-                onScroll={handleDoctorsScroll}
-              >
-                <div
-                  className="p-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => {
-                    handleChange('doctor_id', null);
-                    handleChange('diagnose_id', null);
-                    setIsDoctorDropdownOpen(false);
-                  }}
-                >
-                  Пусто
-                </div>
-                {doctors.map((doctor) => (
-                  <div
-                    key={doctor.id}
-                    className="p-2 hover:bg-gray-700 cursor-pointer"
-                    onClick={() => {
-                      handleChange('doctor_id', doctor.id);
-                      setIsDoctorDropdownOpen(false);
-                    }}
+          <div className="space-y-3">
+            {form.diagnose_ids.map((diagnose_data, index) => (
+              <div key={index} className="relative flex items-center gap-2">
+                <div className="relative w-full">
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 rounded-lg text-left bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    onClick={() => setIsDiagnoseDropdownOpen((prev) => (prev === index ? null : index))}
                   >
-                    {doctor.user.first_name} {doctor.user.middle_name} {doctor.user.last_name}
-                  </div>
-                ))}
+                    {diagnose_data
+                      ? diagnoses.find((diagnose) => diagnose.id === diagnose_data.id)?.name || 'Выберите диагноз'
+                      : 'Выберите диагноз'}
+                  </button>
+
+                  {isDiagnoseDropdownOpen === index && (
+                    <div
+                      className="absolute z-10 mt-1 w-full max-h-40 overflow-y-auto bg-gray-800 border border-gray-700 rounded-lg"
+                      onScroll={handleDiagnosesScroll}
+                    >
+                      {/* Пустой вариант */}
+                      <div
+                        className="p-2 hover:bg-gray-700 cursor-pointer"
+                        onClick={() => {
+                          const updated = [...form.diagnose_ids];
+                          updated[index] = { id: null, planned_session_count: 0 };
+                          handleChange('diagnose_ids', updated);
+                          setIsDiagnoseDropdownOpen(null);
+                        }}
+                      >
+                        Пусто
+                      </div>
+
+                      {/* Список диагнозов */}
+                      {diagnoses.map((d) => (
+                        <div
+                          key={d.id}
+                          className="p-2 hover:bg-gray-700 cursor-pointer"
+                          onClick={() => {
+                            const updated = [...form.diagnose_ids];
+                            updated[index] = { ...updated[index], id: d.id };
+                            handleChange('diagnose_ids', updated);
+                            setIsDiagnoseDropdownOpen(null);
+                          }}
+                        >
+                          {d.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* input для planned_session_count */}
+                <input
+                  type="number"
+                  min={0}
+                  disabled={diagnose_data.id === null}
+                  value={diagnose_data.planned_session_count || undefined}
+                  onChange={(e) => {
+                    const updated = [...form.diagnose_ids];
+                    updated[index] = { ...updated[index], planned_session_count: Number(e.target.value) };
+                    handleChange('diagnose_ids', updated);
+                  }}
+                  className="w-24 px-2 py-1 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  placeholder="Сессий"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = form.diagnose_ids.filter((_, i) => i !== index);
+                    handleChange('diagnose_ids', updated);
+                  }}
+                  className="px-2 py-1 bg-red-600 rounded-lg hover:bg-red-500 transition"
+                >
+                  ✕
+                </button>
               </div>
-            )}
+            ))}
           </div>
 
-          {/* TODO вынести в отдельный виджет */}
-          {/* Диагноз - кастомный dropdown */}
-          <div className="relative">
-            <button
-              disabled={!form.doctor_id}
-              className={`w-full px-3 py-2 rounded-lg text-left bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 ${
-                !form.doctor_id ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              onClick={() => form.doctor_id && setIsDiagnoseDropdownOpen((prev) => !prev)}
-            >
-              {form.diagnose_id ? diagnoses.find((diagnose) => diagnose.id === form.diagnose_id)?.name : 'Диагноз'}
-            </button>
+          <div className="space-y-3"></div>
+        </div>
 
-            {isDiagnoseDropdownOpen && (
-              <div
-                className="absolute z-10 mt-1 w-full max-h-40 overflow-y-auto bg-gray-800 border border-gray-700 rounded-lg"
-                onScroll={handleDiagnosesScroll}
-              >
-                <div
-                  className="p-2 hover:bg-gray-700 cursor-pointer"
-                  onClick={() => {
-                    handleChange('diagnose_id', null);
-                    setIsDiagnoseDropdownOpen(false);
-                  }}
-                >
-                  Пусто
-                </div>
-                {diagnoses.map((diagnose) => (
-                  <div
-                    key={diagnose.id}
-                    className="p-2 hover:bg-gray-700 cursor-pointer"
-                    onClick={() => {
-                      handleChange('diagnose_id', diagnose.id);
-                      setIsDiagnoseDropdownOpen(false);
-                    }}
-                  >
-                    {diagnose.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* OLD DOCTOR SELECTOR */}
-          {/* <select
-            value={form.doctor_id || ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleChange('doctor_id', value === '' ? null : Number(value));
-            }}
-            className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          >
-            <option value="" disabled>
-              Лечащий врач
-            </option>
-            <div className="h-40 overflow-y-auto border border-gray-700 rounded-lg" onScroll={handleDoctorsScroll}>
-              {doctors.map((doctor) => (
-                <option key={doctor.id} value={doctor.id}>
-                  {doctor.user.first_name} {doctor.user.middle_name} {doctor.user.last_name}
-                </option>
-              ))}
-            </div>
-          </select> */}
-
-          {/* OLD DIAGNOSE SELECTOR */}
-          {/* <select
-            disabled={!form.doctor_id}
-            value={form.diagnose_id || ''}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleChange('diagnose_id', value === '' ? null : Number(value));
-            }}
-            className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          >
-            <option value="" disabled>
-              Диагноз
-            </option>
-            <div className="h-40 overflow-y-auto border border-gray-700 rounded-lg" onScroll={handleDiagnosesScroll}>
-              {diagnoses.map((diagnose) => (
-                <option key={diagnose.id} value={diagnose.id}>
-                  {diagnose.name}
-                </option>
-              ))}
-            </div>
-          </select> */}
+        <div className="mt-3">
+          <textarea
+            placeholder="Заметки"
+            value={form.notes || ''}
+            onChange={(e) => handleChange('notes', e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+            rows={4}
+          />
         </div>
 
         {/* кнопки */}
         <div className="flex justify-end gap-4 mt-6">
+          <button
+            type="button"
+            onClick={() => handleChange('diagnose_ids', [...form.diagnose_ids, { id: null, planned_session_count: 0 }])}
+            className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition"
+          >
+            Добавить диагноз
+          </button>
           <button onClick={handleClear} className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition">
             Очистить
           </button>
