@@ -1,3 +1,4 @@
+from fastapi.responses import StreamingResponse
 from app.api.dependencies.check_patient_exists import check_patient_exists_by_phone
 from app.api.dependencies.check_user_rules import check_user_doctor_role
 from app.config.config import app_config
@@ -11,11 +12,13 @@ from app.schemas.patient import (
     PatientUpdateSchema,
 )
 from typing import List
+from app.services import PatientService, ReportService
 from app.api.dependencies import (
     check_patient_exists_by_id,
+    check_hospital_exists,
+    check_patient_doctor_diagnose_exists,
     check_token,
 )
-from app.services.patient import PatientService
 
 router = APIRouter(
     prefix=app_config.api_v1_prefix.patient,
@@ -36,11 +39,18 @@ def get_patient_service(
     return PatientService(session)
 
 
+def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportService:
+    return ReportService(session=session)
+
+
 @router.post(
     "/",
     response_model=PatientReadSchema,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(check_user_doctor_role), Depends(check_patient_exists_by_phone)],
+    dependencies=[
+        Depends(check_user_doctor_role),
+        Depends(check_patient_exists_by_phone),
+    ],
 )
 async def create(
     patient_data: PatientCreateSchema,
@@ -62,9 +72,10 @@ async def get_by_id(
     return await patient_repo.get_by_id(patient_id, True)
 
 
+# TODO pagin response
 @router.get("/", response_model=List[PatientReadSchema], status_code=status.HTTP_200_OK)
 async def get_all(
-    limit: int = Query(10, ge=1, le=10),  # по умолчанию 10, от 1 до 10
+    limit: int = Query(15, ge=1, le=15),  # по умолчанию 15, от 1 до 15
     offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
     patient_repo: PatientRepository = Depends(get_patient_repository),
 ):
@@ -84,3 +95,37 @@ async def update(
 ):
     patient = patient_data.model_dump()
     return await patient_repo.update(patient_id, patient)
+
+
+@router.get(
+    "/report/{patient_id}/hospital/{hospital_id}/patient-doctor-diagnose/{patient_doctor_diagnose_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_patient_exists_by_id),
+        Depends(check_hospital_exists),
+        Depends(check_patient_doctor_diagnose_exists),
+    ],
+)
+async def get_report(
+    patient_id: int,
+    hospital_id: int,
+    patient_doctor_diagnose_id: int,
+    disposition: str = Query("inline", regex="^(inline|attachment)$"),
+    report_service: ReportService = Depends(get_report_service),
+):
+    report_data_dump = await report_service.get_report_data(
+        patient_id, hospital_id, patient_doctor_diagnose_id
+    )
+
+    pdf_bytes = await report_service.get_pdf_bytes(report_data_dump)
+
+    media_type = "application/pdf"
+    file_ext = "pdf"
+    filename = f"report_patient_id_{patient_id}.{file_ext}"
+    headers = {"Content-Disposition": f"{disposition}; filename={filename}"}
+
+    return StreamingResponse(
+        pdf_bytes,
+        media_type=media_type,
+        headers=headers,
+    )

@@ -2,12 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
 import createSagaMiddleware from 'redux-saga';
 
-import { i18nSlice } from '../i18n/store';
+import { i18nSlice } from '../../features/i18n/store';
 import rootSaga from './rootSaga';
-import { authSlice } from '@/features/auth/slice/authSlice';
-import { patientsSlice } from '@/features/patients/slice/patientsSlice';
-import { doctorsSlice } from '@/features/doctors/slice/doctorsSlice';
-import { diagnosesSlice } from '@/features/diagnoses/slice/diagnosesSlice';
+import { userSlice } from '@/entities/user/model/slice/userSlice';
+import { patientsSlice } from '@/entities/patient/models/slice/patientsSlice';
+import { doctorsSlice } from '@/entities/doctor/slice/doctorsSlice';
+import { diagnosesSlice } from '@/entities/diagnose/slice/diagnosesSlice';
 
 enableMapSet();
 
@@ -16,7 +16,7 @@ const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
   reducer: {
     i18n: i18nSlice.reducer,
-    auth: authSlice.reducer,
+    user: userSlice.reducer,
     patients: patientsSlice.reducer,
     doctors: doctorsSlice.reducer,
     diagnoses: diagnosesSlice.reducer,

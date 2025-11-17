@@ -12,3 +12,4 @@ from .hospital import Hospital
 from .post import Post
 from .cabinet import Cabinet
 from .address import Address
+from .specialization import Specialization

@@ -1,6 +1,6 @@
 import { FaGlobeAmericas, FaGlobeEurope } from 'react-icons/fa';
-import { SupportedLocale } from '@/app/i18n/constants';
-import { setUserLocale } from '@/app/i18n/store';
+import { SupportedLocale } from '@/features/i18n/constants';
+import { setUserLocale } from '@/features/i18n/store';
 import { useTypedDispatch, useTypedSelector } from '@/app/store';
 
 const LANGUAGES: { code: SupportedLocale; label: string; icon: React.ReactNode }[] = [

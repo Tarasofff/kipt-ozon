@@ -11,3 +11,4 @@ class TableNames:
     POST = "post"
     CABINET = "cabinet"
     ADDRESS = "address"
+    SPECIALIZATION = "specialization"

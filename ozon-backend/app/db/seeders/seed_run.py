@@ -7,6 +7,7 @@ from app.db.seeders.user_admin import UserAdminSeeder
 from app.repository.role import RoleRepository
 from app.services.jwt import JWTService
 from app.services.user import UserService
+from app.db.seeders.specialization import SpecializationSeeder
 
 
 # sequence matters!!!
@@ -28,7 +29,7 @@ async def main():
             session=session,
         )
 
-        await user_admin_seeder.seed()
+        # await user_admin_seeder.seed() #TODO
 
         # address hospital seed
         locations_seeder = AddressHospitalSeeder(session)
@@ -37,6 +38,12 @@ async def main():
         # Diagnose seeder
         diagnose_seeder = DiagnoseSeeder(session)
         await diagnose_seeder.seed()
+
+        # Specialization seeder
+        specialization_seeder = SpecializationSeeder(session)
+        await specialization_seeder.seed()
+
+        print("All seeders complete")
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ class DoctorReadSchema(DoctorBaseSchema):
 
 
 class AllDoctorsResponseSchema(BaseModel):
-    doctors: Optional[list[DoctorReadSchema]]
+    doctors: Optional[list[DoctorReadSchema]]  # TODO data
     total: int
     limit: int
     offset: int

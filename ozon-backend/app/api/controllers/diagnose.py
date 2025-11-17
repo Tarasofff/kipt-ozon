@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Query, status
 from app.api.dependencies import check_token
+from app.api.dependencies.check_diagnose import check_diagnose_exists_by_name
 from app.config.config import app_config
 from app.db.session import get_session
 from app.repository import DiagnoseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.diagnose import AllDiagnosesResponseSchema
+from app.schemas.diagnose import AllDiagnosesResponseSchema, DiagnoseCreateSchema, DiagnoseReadSchema
 
 router = APIRouter(
     prefix=app_config.api_v1_prefix.diagnose,
@@ -17,6 +18,21 @@ def get_diagnose_repository(
     session: AsyncSession = Depends(get_session),
 ) -> DiagnoseRepository:
     return DiagnoseRepository(session)
+
+
+@router.post(
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=DiagnoseReadSchema,
+    dependencies=[Depends(check_diagnose_exists_by_name)],
+)
+async def create(
+    diagnose: DiagnoseCreateSchema,
+    diagnose_repo: DiagnoseRepository = Depends(get_diagnose_repository),
+):
+    result = await diagnose_repo.create(diagnose.name)
+    await diagnose_repo.session.commit()
+    return result
 
 
 @router.get(

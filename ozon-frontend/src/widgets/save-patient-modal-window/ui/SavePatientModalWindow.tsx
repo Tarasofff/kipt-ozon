@@ -1,27 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
-import { handlePhoneInput, handleTextInput } from '@/utils/inputUtils';
+import { handlePhoneInput, handleTextInput } from '@/shared/lib/input/inputUtils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
-import { fetchDiagnosesRequest } from '@/features/diagnoses/slice/diagnosesSlice';
-import { createPatientRequest } from '@/features/patients/slice/patientsSlice';
-
-export interface PatientDiagnose {
-  id: number | null;
-  planned_session_count: number;
-}
-
-export interface CreatePatient {
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  phone: string;
-  date_of_birth: string;
-  email: string | null;
-  user_id: number;
-  diagnose_ids: PatientDiagnose[];
-  notes: string | null;
-}
+import { fetchDiagnosesRequest } from '@/entities/diagnose/slice/diagnosesSlice';
+import { createPatientRequest } from '@/entities/patient/models/slice/patientsSlice';
 
 interface SavePatientModalWindowProps {
   isOpen: boolean;
@@ -38,7 +21,7 @@ const getDiagnosesState = () => {
 };
 
 export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientModalWindowProps) {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.user.user);
   if (!user)
     return (
       <div>
@@ -58,15 +41,11 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
     last_name: '',
     phone: '',
     date_of_birth: '',
-    email: null,
+    email: '',
     user_id: user.id,
     diagnose_ids: [],
-    notes: null,
+    notes: '',
   });
-
-  const handleChange = (field: string, value: string | number | null | PatientDiagnose[]) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
 
   const handleClear = () => {
     setForm({
@@ -75,16 +54,16 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
       last_name: '',
       phone: '',
       date_of_birth: '',
-      email: null,
+      email: '',
       user_id: user.id,
       diagnose_ids: [],
-      notes: null,
+      notes: '',
     });
   };
 
   useEffect(() => {
-    if (!isOpen && diagnoses.length === 0) {
-      dispatch(fetchDiagnosesRequest({ offset: 0, limit: 10 }));
+    if (isOpen && diagnoses.length === 0) {
+      dispatch(fetchDiagnosesRequest({ offset: 0, limit: 15 }));
     }
   }, [dispatch, isOpen]);
 
@@ -138,55 +117,65 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
             type="text"
             placeholder="Имя"
             title="Допустимы только буквы"
+            minLength={2}
+            maxLength={32}
             required
-            value={form.first_name || ''}
-            onChange={(e) => handleChange('first_name', e.target.value)}
+            value={form.first_name}
+            onChange={(e) => setForm({ ...form, first_name: e.target.value })}
             onBeforeInput={handleTextInput}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="text"
+            minLength={2}
+            maxLength={32}
             placeholder="Фамилия"
             title="Допустимы только буквы"
             required
-            value={form.last_name || ''}
-            onChange={(e) => handleChange('last_name', e.target.value)}
+            value={form.middle_name}
+            onChange={(e) => setForm({ ...form, middle_name: e.target.value })}
             onBeforeInput={handleTextInput}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="text"
+            minLength={2}
+            maxLength={32}
             placeholder="Отчество"
             title="Допустимы только буквы"
             required
-            value={form.middle_name || ''}
-            onChange={(e) => handleChange('middle_name', e.target.value)}
+            value={form.last_name}
+            onChange={(e) => setForm({ ...form, last_name: e.target.value })}
             onBeforeInput={handleTextInput}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="tel"
+            minLength={8}
+            maxLength={14}
             placeholder="Телефон"
             title="Допустимы только цифры и знак +"
             required
-            value={form.phone || ''}
+            value={form.phone}
             onBeforeInput={handlePhoneInput}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="date"
             required
-            value={form.date_of_birth || ''}
-            onChange={(e) => handleChange('date_of_birth', e.target.value)}
+            value={form.date_of_birth}
+            onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
           <input
             type="email"
+            minLength={4}
+            maxLength={32}
             title="Допустима только электронная почта"
             placeholder="Email"
-            value={form.email || ''}
-            onChange={(e) => handleChange('email', e.target.value)}
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
 
@@ -215,7 +204,7 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
                         onClick={() => {
                           const updated = [...form.diagnose_ids];
                           updated[index] = { id: null, planned_session_count: 0 };
-                          handleChange('diagnose_ids', updated);
+                          setForm({ ...form, diagnose_ids: updated });
                           setIsDiagnoseDropdownOpen(null);
                         }}
                       >
@@ -230,7 +219,7 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
                           onClick={() => {
                             const updated = [...form.diagnose_ids];
                             updated[index] = { ...updated[index], id: d.id };
-                            handleChange('diagnose_ids', updated);
+                            setForm({ ...form, diagnose_ids: updated });
                             setIsDiagnoseDropdownOpen(null);
                           }}
                         >
@@ -250,7 +239,7 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
                   onChange={(e) => {
                     const updated = [...form.diagnose_ids];
                     updated[index] = { ...updated[index], planned_session_count: Number(e.target.value) };
-                    handleChange('diagnose_ids', updated);
+                    setForm({ ...form, diagnose_ids: updated });
                   }}
                   className="w-24 px-2 py-1 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
                   placeholder="Сессий"
@@ -260,7 +249,7 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
                   type="button"
                   onClick={() => {
                     const updated = form.diagnose_ids.filter((_, i) => i !== index);
-                    handleChange('diagnose_ids', updated);
+                    setForm({ ...form, diagnose_ids: updated });
                   }}
                   className="px-2 py-1 bg-red-600 rounded-lg hover:bg-red-500 transition"
                 >
@@ -269,15 +258,14 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
               </div>
             ))}
           </div>
-
-          <div className="space-y-3"></div>
         </div>
 
         <div className="mt-3">
           <textarea
             placeholder="Заметки"
-            value={form.notes || ''}
-            onChange={(e) => handleChange('notes', e.target.value)}
+            value={form.notes}
+            maxLength={1024}
+            onChange={(e) => setForm({ ...form, notes: e.target.value })}
             className="w-full px-3 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
             rows={4}
           />
@@ -287,7 +275,9 @@ export default function SavePatientModalWindow({ isOpen, onClose }: SavePatientM
         <div className="flex justify-end gap-4 mt-6">
           <button
             type="button"
-            onClick={() => handleChange('diagnose_ids', [...form.diagnose_ids, { id: null, planned_session_count: 0 }])}
+            onClick={() =>
+              setForm({ ...form, diagnose_ids: [...form.diagnose_ids, { id: null, planned_session_count: 0 }] })
+            }
             className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition"
           >
             Добавить диагноз

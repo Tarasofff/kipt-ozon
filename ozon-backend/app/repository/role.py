@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 from app.db.models.role import Role
 
 
@@ -29,3 +29,8 @@ class RoleRepository:
         result = await self.session.execute(stmt)
         values = result.scalars().all()
         return list(values)
+
+    async def get_count(self) -> int:
+        stmt = select(func.count()).select_from(Role)
+        result = await self.session.execute(stmt)
+        return result.scalar_one()

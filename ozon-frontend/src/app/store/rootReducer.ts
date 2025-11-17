@@ -1,11 +1,11 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { authSlice } from '@/features/auth/slice/authSlice';
-import { patientsSlice } from '@/features/patients/slice/patientsSlice';
-import { doctorsSlice } from '@/features/doctors/slice/doctorsSlice';
-import { diagnosesSlice } from '@/features/diagnoses/slice/diagnosesSlice';
+import { userSlice } from '@/entities/user/model/slice/userSlice';
+import { patientsSlice } from '@/entities/patient/models/slice/patientsSlice';
+import { doctorsSlice } from '@/entities/doctor/slice/doctorsSlice';
+import { diagnosesSlice } from '@/entities/diagnose/slice/diagnosesSlice';
 
 const rootReducer = combineReducers({
-  auth: authSlice.reducer,
+  user: userSlice.reducer,
   patients: patientsSlice.reducer,
   doctors: doctorsSlice.reducer,
   diagnoses: diagnosesSlice.reducer,

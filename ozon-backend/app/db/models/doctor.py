@@ -9,7 +9,7 @@ from app.db.models.base import Base
 from app.db.models.mixins import TimestampMixin, IdIntPkMixin
 
 if TYPE_CHECKING:
-    from app.db.models import PatientDoctorDiagnose, User
+    from app.db.models import PatientDoctorDiagnose, User, Specialization
 
 
 class Doctor(IdIntPkMixin, TimestampMixin, Base):
@@ -17,6 +17,12 @@ class Doctor(IdIntPkMixin, TimestampMixin, Base):
 
     patient_doctor_diagnose: Mapped[list[PatientDoctorDiagnose]] = relationship(
         back_populates="doctor"
+    )
+
+    specialization: Mapped[Specialization] = relationship(back_populates="doctor")
+
+    specialization_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(f"{TableNames.SPECIALIZATION}.id"), nullable=False
     )
 
     user: Mapped[User] = relationship(back_populates="doctor")

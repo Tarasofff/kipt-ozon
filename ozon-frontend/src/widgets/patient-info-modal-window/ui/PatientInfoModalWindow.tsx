@@ -1,5 +1,5 @@
 import { useTypedSelector } from '@/app/store';
-import { processingReport } from '@/services/report/report';
+import { processingReport } from '@/entities/patient/services/report/report';
 import { useState } from 'react';
 
 interface Address {
@@ -94,7 +94,7 @@ interface PatientInfoModalWindowProps {
 }
 
 export default function PatientInfoModalWindow({ patient, onClose }: PatientInfoModalWindowProps) {
-  const { token, tokenType } = useTypedSelector((s) => s.auth);
+  const { token, tokenType } = useTypedSelector((s) => s.user);
   const [openDiagnose, setOpenDiagnose] = useState<number | null>(null);
 
   // хранит выбранную больницу для каждого patient_doctor_diagnose (ключ = pdd.id)
@@ -308,6 +308,13 @@ export default function PatientInfoModalWindow({ patient, onClose }: PatientInfo
 
                       {/* Кнопки отчетов */}
                       <div className="flex justify-end space-x-4 mt-4">
+                        <button
+                          className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!!loadingMap[pdd.id]}
+                          // onClick={}
+                        >
+                          {loadingMap[pdd.id] ? 'Загрузка...' : 'Добавить сессию'}
+                        </button>
                         <button
                           className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           disabled={!derivedSelectedHospital || !!loadingMap[pdd.id]}

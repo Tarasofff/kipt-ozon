@@ -39,7 +39,7 @@ class UserLoginSchema(TokenSchema):
     middle_name: str
     last_name: str
     phone: str
-    email: Optional[EmailStr]
+    email: EmailStr
     date_of_birth: date
     is_active: bool
     role_id: int

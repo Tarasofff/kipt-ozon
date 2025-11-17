@@ -1,5 +1,5 @@
 import { useTypedSelector } from '@/app/store';
-import { getPatientById } from '@/shared/api/patients';
+import { getPatientById } from '@/entities/patient/api/requests';
 import PatientInfoModalWindow from '@/widgets/patient-info-modal-window';
 import { PatientWithRelations } from '@/widgets/patient-info-modal-window/ui/PatientInfoModalWindow';
 import { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ interface PatientsTableProps {
 
 export default function PatientsTable({ patients }: PatientsTableProps) {
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
-  const { token, tokenType } = useTypedSelector((state) => state.auth);
+  const { token, tokenType } = useTypedSelector((state) => state.user);
 
   if (!token || !tokenType) throw new Error('Not authorized');
 
