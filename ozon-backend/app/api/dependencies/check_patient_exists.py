@@ -1,5 +1,8 @@
 from fastapi import Depends
-from app.api.exceptions.api_exceptions import NotFoundException, UnprocessableEntityException
+from app.api.exceptions.api_exceptions import (
+    NotFoundException,
+    UnprocessableEntityException,
+)
 from app.db.session import get_session
 from app.repository import PatientRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,11 +22,12 @@ async def check_patient_exists_by_id(
     result = await patient_repo.get_by_id(patient_id)
     if not result:
         raise NotFoundException(f"Patient id:{patient_id} not found")
-    return result.id
+    return patient_id
 
 
 async def check_patient_exists_by_phone(
-    patient_data: PatientCreateSchema, patient_repo: PatientRepository = Depends(get_patient_repo)
+    patient_data: PatientCreateSchema,
+    patient_repo: PatientRepository = Depends(get_patient_repo),
 ):
     phone = patient_data.model_dump()["phone"]
     result = await patient_repo.get_by_phone(phone)

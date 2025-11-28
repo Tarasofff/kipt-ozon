@@ -1,7 +1,7 @@
 import { ReactNode, useCallback } from 'react';
 
-import { SupportedLocale } from '@/features/i18n/constants';
-import { setUserLocale } from '@/features/i18n/store';
+import { SupportedLocale } from '@/features/i18n/constants/constants';
+import { setUserLocale } from '@/features/i18n/store/store';
 import { useTypedDispatch, useTypedSelector } from '@/app/store';
 
 import { Provider } from './provider';

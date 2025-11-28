@@ -1,14 +1,18 @@
 import { useTypedDispatch, useTypedSelector } from '@/app/store';
-import { fetchDiagnosesRequest } from '@/entities/diagnose/slice/diagnosesSlice';
-import DiagnosesTable from '@/widgets/diagnoses-table';
+import { fetchDiagnosesRequest } from '@/entities/diagnose/models/slice/diagnosesSlice';
+import DiagnosesTable from '@/pages/diagnoses/components/DiagnosesTable';
 import SaveDiagnoseModalWindow from '@/widgets/save-diagnose-modal-window';
 import { useEffect, useMemo, useState } from 'react';
 import { BiFilterAlt, BiPlus, BiX, BiRefresh } from 'react-icons/bi';
 
+interface FiltersState {
+  name: string;
+}
+
 export default function Diagnoses() {
   const dispatch = useTypedDispatch();
-  const { diagnoses, loading, error } = useTypedSelector((state) => state.diagnoses);
-
+  const { data, loading, error } = useTypedSelector((state) => state.diagnoses);
+  const basePaginationParams = { limit: 15, offset: 0 };
   // сортировка по id
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -16,7 +20,7 @@ export default function Diagnoses() {
   const [showFilters, setShowFilters] = useState(false);
 
   // состояния фильтров
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FiltersState>({
     name: '',
   });
 
@@ -30,14 +34,14 @@ export default function Diagnoses() {
 
   // запрос диагнозов
   useEffect(() => {
-    if (diagnoses.length === 0) {
-      dispatch(fetchDiagnosesRequest({ limit: 15, offset: 0 }));
+    if (data.length === 0) {
+      dispatch(fetchDiagnosesRequest(basePaginationParams));
     }
-  }, [dispatch]);
+  }, [dispatch, data]);
 
   // отфильтрованные и отсортированные диагнозы
   const filteredDiagnoses = useMemo(() => {
-    let result = [...diagnoses];
+    let result = [...data];
 
     result = result.filter((diagnose) => {
       return diagnose.name.toLowerCase().includes(filters.name.toLowerCase());
@@ -46,15 +50,17 @@ export default function Diagnoses() {
     result.sort((a, b) => (sortOrder === 'asc' ? a.id - b.id : b.id - a.id));
 
     return result;
-  }, [diagnoses, filters, sortOrder]);
+  }, [data, filters, sortOrder]);
 
+  //TODO page loader
   if (loading) return <div className="text-white p-8">Загрузка диагнозов...</div>;
+
+  //TODO err
   if (error) return <div className="text-red-400 p-8">Ошибка: {error}</div>;
 
   return (
     <div className="p-8 relative">
       <div className="flex justify-start -mb-4 pt-10 pb-6 gap-3">
-        {/* TODO вынести */}
         {/* кнопка фильтра */}
         <button
           onClick={() => setShowFilters((prev) => !prev)}
@@ -85,10 +91,9 @@ export default function Diagnoses() {
         {/* модалка */}
         <SaveDiagnoseModalWindow isOpen={isAddDiagnoseOpen} onClose={() => setIsAddDiagnoseOpen(false)} />
 
-        {/* TODO вынести */}
         {/* кнопка  Обновить таблицу */}
         <button
-          onClick={() => dispatch(fetchDiagnosesRequest({ limit: 15, offset: 0 }))}
+          onClick={() => dispatch(fetchDiagnosesRequest(basePaginationParams))}
           className="flex items-center gap-2 px-6 py-3 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500 transition text-lg"
         >
           <BiRefresh className="text-xl" />
@@ -96,7 +101,6 @@ export default function Diagnoses() {
         </button>
       </div>
 
-      {/* TODO вынести */}
       {/* панель фильтра */}
       {showFilters && (
         <div className="bg-gray-900 p-4 rounded-xl mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-6 animate-fadeIn">
@@ -118,7 +122,7 @@ export default function Diagnoses() {
         </div>
       )}
 
-      <DiagnosesTable diagnoses={filteredDiagnoses} />
+      <DiagnosesTable data={filteredDiagnoses} />
     </div>
   );
 }

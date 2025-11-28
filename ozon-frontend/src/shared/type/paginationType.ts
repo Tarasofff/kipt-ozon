@@ -1,9 +1,9 @@
-export interface Pagination {
+export interface PaginationParams {
   limit: number;
   offset: number;
 }
 
-export interface PaginatedResponse<T> extends Pagination {
+export interface PaginatedData<T> extends PaginationParams {
   data: T[];
   total: number;
 }

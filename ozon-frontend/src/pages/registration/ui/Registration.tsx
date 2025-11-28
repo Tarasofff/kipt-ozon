@@ -1,9 +1,13 @@
-import { CreateUserPayload } from '@/entities/user/model/type/userRole';
-import { handlePhoneInput, handleTextInput } from '@/shared/lib/input/inputUtils';
+import { RegistrationPayload } from '@/entities/user/model/type/authType';
+import { inputTypeHandlers } from '@/shared/lib/input/inputUtils';
 import { useState } from 'react';
+interface RegistrationForm extends Omit<RegistrationPayload, 'role_id' | 'specialization_id'> {
+  role_id: number | null;
+  specialization_id: number | null;
+}
 
 export default function Registration() {
-  const [form, setForm] = useState<CreateUserPayload>({
+  const [form, setForm] = useState<RegistrationForm>({
     first_name: '',
     middle_name: '',
     last_name: '',
@@ -19,6 +23,7 @@ export default function Registration() {
   const confirmPassword = (pass: string, confirmPass: string) => pass === confirmPass;
   const isPasswordMatch = confirmPassword(form.password, form.confirm_password);
 
+  //TODO
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(form);
@@ -40,7 +45,7 @@ export default function Registration() {
               required
               value={form.first_name}
               onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-              onBeforeInput={handleTextInput}
+              onBeforeInput={inputTypeHandlers.text}
               className="w-full px-4 py-2 border border-gray-500 rounded-lg bg-black/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             />
           </div>
@@ -56,7 +61,7 @@ export default function Registration() {
               required
               value={form.middle_name}
               onChange={(e) => setForm({ ...form, middle_name: e.target.value })}
-              onBeforeInput={handleTextInput}
+              onBeforeInput={inputTypeHandlers.text}
               className="w-full px-4 py-2 border border-gray-500 rounded-lg bg-black/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             />
           </div>
@@ -72,7 +77,7 @@ export default function Registration() {
               required
               value={form.last_name}
               onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-              onBeforeInput={handleTextInput}
+              onBeforeInput={inputTypeHandlers.text}
               className="w-full px-4 py-2 border border-gray-500 rounded-lg bg-black/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             />
           </div>
@@ -86,7 +91,7 @@ export default function Registration() {
               type="email"
               title="Допустима только электронная почта"
               placeholder="Email@example.com"
-              value={form.email}
+              value={form.email ?? ''}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full px-4 py-2 border border-gray-500 rounded-lg bg-black/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             />
@@ -102,7 +107,7 @@ export default function Registration() {
               title="Допустимы только цифры и знак +"
               required
               value={form.phone}
-              onBeforeInput={handlePhoneInput}
+              onBeforeInput={inputTypeHandlers.tel}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="+380 (___) ___-__-__"
               className="w-full px-4 py-2 border border-gray-500 rounded-lg bg-black/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"

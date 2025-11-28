@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { userSlice } from '@/entities/user/model/slice/userSlice';
 import { patientsSlice } from '@/entities/patient/models/slice/patientsSlice';
-import { doctorsSlice } from '@/entities/doctor/slice/doctorsSlice';
-import { diagnosesSlice } from '@/entities/diagnose/slice/diagnosesSlice';
+import { doctorsSlice } from '@/entities/doctor/models/slice/doctorsSlice';
+import { diagnosesSlice } from '@/entities/diagnose/models/slice/diagnosesSlice';
 
 const rootReducer = combineReducers({
   user: userSlice.reducer,

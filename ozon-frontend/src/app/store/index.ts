@@ -2,12 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
 import createSagaMiddleware from 'redux-saga';
 
-import { i18nSlice } from '../../features/i18n/store';
+import { i18nSlice } from '../../features/i18n/store/store';
 import rootSaga from './rootSaga';
 import { userSlice } from '@/entities/user/model/slice/userSlice';
 import { patientsSlice } from '@/entities/patient/models/slice/patientsSlice';
-import { doctorsSlice } from '@/entities/doctor/slice/doctorsSlice';
-import { diagnosesSlice } from '@/entities/diagnose/slice/diagnosesSlice';
+import { doctorsSlice } from '@/entities/doctor/models/slice/doctorsSlice';
+import { diagnosesSlice } from '@/entities/diagnose/models/slice/diagnosesSlice';
 
 enableMapSet();
 

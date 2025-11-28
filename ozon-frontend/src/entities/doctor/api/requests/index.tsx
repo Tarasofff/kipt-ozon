@@ -1,9 +1,17 @@
 import { http } from '@/shared/api/client';
 import { DOCTOR_API } from '../routes';
-import { AllDoctorsResponse } from '../../type/doctor.type';
+import { PaginatedData, PaginationParams } from '@/shared/type/paginationType';
+import { DoctorEntity, DoctorSpecializationEntity } from '../../models/type/doctorType';
+import { createQuery } from '@/shared/lib/query/queryUtils';
 
-export const getAllDoctors = async (limit: number, offset: number): Promise<AllDoctorsResponse> =>
-  http.get(`${DOCTOR_API.INDEX}?limit=${limit}&offset=${offset}`).then((res) => res.data);
+export const getDoctors = async (params: PaginationParams): Promise<PaginatedData<DoctorEntity>> => {
+  const { data } = await http.get(`${DOCTOR_API.INDEX}${createQuery(params)}`);
+  return data;
+};
 
-export const getAllDoctorsSpecializations = async (limit: number, offset: number) =>
-  http.get(`${DOCTOR_API.SPECIALIZATION}?limit=${limit}&offset=${offset}`).then((res) => res.data);
+export const getDoctorsSpecializations = async (
+  params: PaginationParams,
+): Promise<PaginatedData<DoctorSpecializationEntity>> => {
+  const { data } = await http.get(`${DOCTOR_API.SPECIALIZATION}${createQuery(params)}`);
+  return data;
+};

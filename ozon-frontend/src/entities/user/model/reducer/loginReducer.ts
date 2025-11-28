@@ -1,6 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { UserState } from '../type/userStateType';
 import { LoginPayload } from '../type/authType';
+import { clearAuthData } from '../../lib/auth/authStorage';
 
 export const loginReducer = {
   loginRequest: (state: UserState, action: PayloadAction<LoginPayload>) => {
@@ -21,5 +22,7 @@ export const loginReducer = {
     state.user = null;
     state.token = null;
     state.tokenType = null;
+
+    clearAuthData();
   },
 };

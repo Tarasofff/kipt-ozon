@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi.responses import StreamingResponse
 from app.api.dependencies.check_patient_exists import check_patient_exists_by_phone
 from app.api.dependencies.check_user_rules import check_user_doctor_role
@@ -10,8 +11,8 @@ from app.schemas.patient import (
     PatientCreateSchema,
     PatientReadSchema,
     PatientUpdateSchema,
+    PatientsResponseSchema,
 )
-from typing import List
 from app.services import PatientService, ReportService
 from app.api.dependencies import (
     check_patient_exists_by_id,
@@ -44,7 +45,7 @@ def get_report_service(session: AsyncSession = Depends(get_session)) -> ReportSe
 
 
 @router.post(
-    "/",
+    "/create",
     response_model=PatientReadSchema,
     status_code=status.HTTP_201_CREATED,
     dependencies=[
@@ -60,7 +61,51 @@ async def create(
 
 
 @router.get(
-    "/{patient_id}",
+    "/filter",
+    status_code=status.HTTP_200_OK,
+)
+async def get_by_filter(
+    id: Optional[int] = None,
+    last_name: Optional[str] = None,
+    first_name: Optional[str] = None,
+    middle_name: Optional[str] = None,
+    phone: Optional[str] = None,
+    date_of_birth: Optional[str] = None,
+    email: Optional[str] = None,
+    is_active: Optional[str] = None,
+    limit: int = Query(15, ge=1, le=15),  # по умолчанию 15, от 1 до 15
+    offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
+    patient_repo: PatientRepository = Depends(get_patient_repository),
+):
+    data = await patient_repo.get_by_filter(
+        id=id,
+        last_name=last_name,
+        first_name=first_name,
+        middle_name=middle_name,
+        phone=phone,
+        date_of_birth=date_of_birth,
+        email=email,
+        is_active=(
+            True
+            if is_active and is_active.lower() == "true"
+            else False if is_active and is_active.lower() == "false" else None
+        ),
+    )
+
+    total = len(data)
+
+    return PatientsResponseSchema.model_validate(
+        {
+            "data": data,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }
+    )
+
+
+@router.get(
+    "/detail/id/{patient_id}",
     # response_model=PatientReadSchema, #TODO
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(check_patient_exists_by_id)],
@@ -72,18 +117,8 @@ async def get_by_id(
     return await patient_repo.get_by_id(patient_id, True)
 
 
-# TODO pagin response
-@router.get("/", response_model=List[PatientReadSchema], status_code=status.HTTP_200_OK)
-async def get_all(
-    limit: int = Query(15, ge=1, le=15),  # по умолчанию 15, от 1 до 15
-    offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
-    patient_repo: PatientRepository = Depends(get_patient_repository),
-):
-    return await patient_repo.get_all(offset=offset, limit=limit)
-
-
 @router.put(
-    "/{patient_id}",
+    "/update/{patient_id}",
     response_model=PatientReadSchema,
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(check_patient_exists_by_id)],
@@ -98,21 +133,18 @@ async def update(
 
 
 @router.get(
-    "/report/{patient_id}/hospital/{hospital_id}/patient-doctor-diagnose/{patient_doctor_diagnose_id}",
+    "/report",
     status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_patient_exists_by_id),
-        Depends(check_hospital_exists),
-        Depends(check_patient_doctor_diagnose_exists),
-    ],
+    response_class=StreamingResponse,
 )
 async def get_report(
-    patient_id: int,
-    hospital_id: int,
-    patient_doctor_diagnose_id: int,
+    patient_id: int = Depends(check_patient_exists_by_id),
+    hospital_id: int = Depends(check_hospital_exists),
+    patient_doctor_diagnose_id: int = Depends(check_patient_doctor_diagnose_exists),
     disposition: str = Query("inline", regex="^(inline|attachment)$"),
     report_service: ReportService = Depends(get_report_service),
 ):
+    print(patient_id, hospital_id, patient_doctor_diagnose_id, disposition)
     report_data_dump = await report_service.get_report_data(
         patient_id, hospital_id, patient_doctor_diagnose_id
     )

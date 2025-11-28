@@ -17,4 +17,4 @@ async def check_hospital_exists(
     result = await hospital_repo.get_by_id(hospital_id)
     if not result:
         raise NotFoundException(f"Hospital id:{hospital_id} not found")
-    return result.id
+    return hospital_id

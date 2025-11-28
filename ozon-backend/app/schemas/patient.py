@@ -48,3 +48,10 @@ class PatientUpdateSchema(BaseModel, DateParser):
     email: Optional[str]
 
     model_config = ConfigDict(strict=True)
+
+
+class PatientsResponseSchema(BaseModel):
+    data: Optional[list[PatientReadSchema]]
+    total: int
+    limit: int
+    offset: int

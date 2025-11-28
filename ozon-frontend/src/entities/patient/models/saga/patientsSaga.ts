@@ -9,16 +9,15 @@ import {
 } from '../slice/patientsSlice';
 import { createPatient, getPatients } from '@/entities/patient/api/requests';
 import { PatientEntity } from '../type/patientType';
-import { PaginatedResponse } from '@/shared/type/paginationType';
+import { PaginatedData } from '@/shared/type/paginationType';
 
 function* fetchPatientsWorker(action: ReturnType<typeof fetchPatientsRequest>) {
   try {
-    const { offset, limit } = action.payload;
-    const data: PaginatedResponse<PatientEntity> = yield call(getPatients, limit, offset);
+    const data: PaginatedData<PatientEntity> = yield call(getPatients, action.payload);
 
     yield put(fetchPatientsSuccess(data));
-  } catch (err: any) {
-    yield put(fetchPatientsFailure(err.message || 'Ошибка загрузки пациентов'));
+  } catch (error: any) {
+    yield put(fetchPatientsFailure(error?.message || 'Ошибка загрузки пациентов'));
   }
 }
 
@@ -28,7 +27,7 @@ function* createPatientWorker(action: ReturnType<typeof createPatientRequest>) {
 
     yield put(createPatientSuccess(data));
   } catch (error: any) {
-    yield put(createPatientFailure(error.message || 'Ошибка создания пациента'));
+    yield put(createPatientFailure(error?.message || 'Ошибка создания пациента'));
   }
 }
 

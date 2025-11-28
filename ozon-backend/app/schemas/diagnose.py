@@ -19,8 +19,8 @@ class DiagnoseReadSchema(DiagnoseBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-class AllDiagnosesResponseSchema(BaseModel):
-    diagnoses: Optional[list[DiagnoseReadSchema]]
+class DiagnosesResponseSchema(BaseModel):
+    data: Optional[list[DiagnoseReadSchema]]
     total: int
     limit: int
     offset: int

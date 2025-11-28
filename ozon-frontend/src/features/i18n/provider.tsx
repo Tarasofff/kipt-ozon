@@ -3,7 +3,7 @@ import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { en, ru, PluralCategory } from 'make-plural/plurals';
 
-import { DEFAULT_LOCALE, SupportedLocale } from '@/features/i18n/constants';
+import { DEFAULT_LOCALE, SupportedLocale } from '@/features/i18n/constants/constants';
 
 type LocalePlural = Record<SupportedLocale, (n: number, ordinal?: boolean) => PluralCategory>;
 

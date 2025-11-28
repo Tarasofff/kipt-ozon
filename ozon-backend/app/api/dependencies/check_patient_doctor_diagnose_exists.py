@@ -22,4 +22,4 @@ async def check_patient_doctor_diagnose_exists(
         raise NotFoundException(
             f"Patient_doctor_diagnose id:{patient_doctor_diagnose_id} not found"
         )
-    return result.id
+    return patient_doctor_diagnose_id

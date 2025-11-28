@@ -6,11 +6,11 @@ export interface User {
   last_name: string;
   phone: string;
   email: string | null;
-  date_of_birth: Date | string;
+  date_of_birth: string;
   role_id: number;
 }
 
-export interface UserRole {
+export interface UserRoleEntity extends Timestamp {
   id: number;
   name: string;
 }

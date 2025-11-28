@@ -1,4 +1,6 @@
+const index = '/doctor';
+
 export const DOCTOR_API = {
-  INDEX: '/doctor',
-  SPECIALIZATION: '/doctor/specialization',
+  INDEX: index,
+  SPECIALIZATION: `${index}/specialization`,
 };

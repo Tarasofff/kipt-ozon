@@ -1,6 +1,6 @@
 from typing import Any, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import ColumnElement, func, select, update
 from app.db.models import Patient
 from sqlalchemy.orm import selectinload
 from app.db.models import (
@@ -87,6 +87,54 @@ class PatientRepository:
         patients = result.scalars().all()
         return list(patients)
 
+    async def get_by_filter(
+        self,
+        id: Optional[int],
+        last_name: Optional[str],
+        first_name: Optional[str],
+        middle_name: Optional[str],
+        phone: Optional[str],
+        date_of_birth: Optional[str],
+        email: Optional[str],
+        is_active: Optional[bool],
+    ) -> List[Patient]:
+
+        mapping: dict[str, Optional[ColumnElement[bool]]] = {
+            "id": Patient.id == id if id is not None else None,
+            "last_name": (
+                Patient.last_name.ilike(f"%{last_name}%") if last_name else None
+            ),
+            "first_name": (
+                Patient.first_name.ilike(f"%{first_name}%") if first_name else None
+            ),
+            "middle_name": (
+                Patient.middle_name.ilike(f"%{middle_name}%") if middle_name else None
+            ),
+            "phone": Patient.phone.ilike(f"%{phone}%") if phone else None,
+            "date_of_birth": (
+                Patient.date_of_birth == date_of_birth if date_of_birth else None
+            ),
+            "email": Patient.email.ilike(f"%{email}%") if email else None,
+            "is_active": (
+                Patient.is_active == is_active if is_active is not None else None
+            ),
+        }
+
+        filters: list[ColumnElement[bool]] = [
+            expr for expr in mapping.values() if expr is not None
+        ]
+
+        stmt = select(Patient)
+
+        if filters:
+            stmt = stmt.where(*filters)
+
+        result = await self.session.execute(stmt)
+        data = result.scalars().all()
+
+        return list(data)
+
+    # TODO
     async def get_by_phone(self, phone: str) -> Optional[Patient]:
         stmt = select(Patient).where(Patient.phone == phone)
         result = await self.session.execute(stmt)
@@ -96,6 +144,11 @@ class PatientRepository:
         self.session.add(patient)
         await self.session.flush()
         return patient
+
+    async def get_count(self) -> int:
+        stmt = select(func.count()).select_from(Patient)
+        result = await self.session.execute(stmt)
+        return result.scalar_one()
 
     async def update(
         self,

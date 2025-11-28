@@ -13,7 +13,7 @@ class DoctorSpecializationReadSchema(DoctorSpecializationBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
-class AllDoctorsSpecializationsResponseSchema(BaseModel):
+class DoctorsSpecializationsResponseSchema(BaseModel):
     data: Optional[list[DoctorSpecializationReadSchema]]
     total: int
     limit: int

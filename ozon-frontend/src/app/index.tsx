@@ -2,7 +2,6 @@ import 'tailwindcss/tailwind.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { HashRouter } from 'react-router-dom';
 
 import { store } from '@/app/store';
 
@@ -13,13 +12,11 @@ const container = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(container);
 
 root.render(
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
       <LanguageProvider>
-        <HashRouter>
-          <App />
-        </HashRouter>
+        <App />
       </LanguageProvider>
     </Provider>
-  </StrictMode>,
+  // </StrictMode>,
 );

@@ -5,7 +5,7 @@ from app.db.session import get_session
 from app.repository import DoctorRepository, SpecializationRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.doctor import AllDoctorsResponseSchema
-from app.schemas.specialization import AllDoctorsSpecializationsResponseSchema
+from app.schemas.specialization import DoctorsSpecializationsResponseSchema
 
 router = APIRouter(
     prefix=app_config.api_v1_prefix.doctor,
@@ -36,12 +36,12 @@ async def get_all_doctors(
     offset: int = Query(0, ge=0),  # по умолчанию 0, не может быть отрицательным
     doctor_repo: DoctorRepository = Depends(get_doctor_repository),
 ):
-    doctors = await doctor_repo.get_all(offset=offset, limit=limit)
+    data = await doctor_repo.get_all(offset=offset, limit=limit)
     count = await doctor_repo.get_count()
 
     return AllDoctorsResponseSchema.model_validate(
         {
-            "doctors": doctors,  # TODO
+            "data": data,
             "total": count,
             "limit": limit,
             "offset": offset,
@@ -51,7 +51,7 @@ async def get_all_doctors(
 
 @router.get(
     "/specialization",
-    response_model=AllDoctorsSpecializationsResponseSchema,
+    response_model=DoctorsSpecializationsResponseSchema,
     status_code=status.HTTP_200_OK,
 )
 async def get_all_doctors_specializations(
@@ -64,7 +64,7 @@ async def get_all_doctors_specializations(
     data = await specialization_repo.get_all(offset=offset, limit=limit)
     count = await specialization_repo.get_count()
 
-    return AllDoctorsSpecializationsResponseSchema.model_validate(
+    return DoctorsSpecializationsResponseSchema.model_validate(
         {
             "data": data,
             "total": count,

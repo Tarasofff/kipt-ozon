@@ -1,10 +1,9 @@
 import { all } from 'redux-saga/effects';
-import { doctorsSaga } from '@/entities/doctor/saga/doctorsSaga';
-import { diagnosesSaga } from '@/entities/diagnose/saga/diagnosesSaga';
+import { doctorsSaga } from '@/entities/doctor/models/saga/doctorsSaga';
+import { diagnosesSaga } from '@/entities/diagnose/models/saga/diagnosesSaga';
 import { patientsSaga } from '@/entities/patient/models/saga/patientsSaga';
-import { registrationSaga } from '@/entities/user/model/saga/registrationSaga';
-import { loginSaga } from '@/entities/user/model/saga/loginSaga';
+import { authSaga } from '@/entities/user/model/saga/authSaga';
 
 export default function* rootSaga() {
-  yield all([loginSaga(), registrationSaga(), patientsSaga(), doctorsSaga(), diagnosesSaga()]);
+  yield all([authSaga(), patientsSaga(), doctorsSaga(), diagnosesSaga()]);
 }

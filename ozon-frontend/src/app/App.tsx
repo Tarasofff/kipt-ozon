@@ -1,14 +1,15 @@
 import { RouterProvider } from 'react-router-dom';
-
-import { useTypedSelector } from '@/app/store/hooks';
 import { createAppRouter } from './providers/router/config/routerConfig';
-import { ErrorBoundary } from '@/widgets/error-boundary';
-import PageLoader from '@/widgets/page-loader/ui/PageLoader';
-import { Suspense } from 'react';
+import { ErrorBoundary } from '@/app/providers/error-boundary';
+import PageLoader from '@/shared/ui/page-loader/PageLoader';
+import { Suspense, useMemo } from 'react';
+import '@/shared/api/interceptors';
+import { useInitializeAppData } from './store/hooks';
 
 const App = () => {
-  const token = useTypedSelector((state) => state.user.token);
-  const router = createAppRouter(!!token);
+  useInitializeAppData();
+
+  const router = useMemo(() => createAppRouter(), []);
 
   return (
     <ErrorBoundary>

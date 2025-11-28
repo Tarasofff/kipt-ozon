@@ -2,23 +2,28 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTypedDispatch, useTypedSelector } from '@/app/store/hooks';
 import { loginRequest } from '@/entities/user/model/slice/userSlice';
+import { APP_ROUTES } from '@/shared/routes/appRoutes';
+import { LoginPayload } from '@/entities/user/model/type/authType';
 
 export default function Login() {
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-
   const dispatch = useTypedDispatch();
   const navigate = useNavigate();
-  const { loading, error, token } = useTypedSelector((state) => state.user);
+
+  const [form, setForm] = useState<LoginPayload>({
+    phone: '',
+    password: '',
+  });
+
+  const { loading, error, token, user } = useTypedSelector((state) => state.user);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginRequest({ phone, password }));
+    dispatch(loginRequest(form));
   };
 
   useEffect(() => {
-    if (token) {
-      navigate('/patients'); // редирект после логина
+    if (token && user) {
+      navigate(APP_ROUTES.patients);
     }
   }, [token, navigate]);
 
@@ -34,8 +39,8 @@ export default function Login() {
             <label className="block mb-1">Номер телефона</label>
             <input
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="+380 (___) ___-__-__"
               className="w-full px-4 py-2 border rounded bg-black/30 text-white"
               required
@@ -45,8 +50,8 @@ export default function Login() {
             <label className="block mb-1">Пароль</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               placeholder="Введите пароль"
               className="w-full px-4 py-2 border rounded bg-black/30 text-white"
               required

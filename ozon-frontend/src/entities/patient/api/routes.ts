@@ -4,7 +4,9 @@ const index = '/patient';
 
 export const PATIENT_API = {
   INDEX: index,
-  GET_BY_ID: (patientId: number) => `${index}/${patientId}`,
+  CREATE: `${index}/create`,
+  FILTER: `${index}/filter`,
+  GET_BY_ID: (patientId: number) => `${index}/detail/id/${patientId}`,
   GET_REPORT: (patientId: number, hospitalId: number, patientDoctorDiagnoseId: number, download: boolean) =>
     `${index}/report${createQuery({
       patient_id: patientId,

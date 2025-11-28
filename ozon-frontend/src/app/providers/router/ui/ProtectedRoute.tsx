@@ -1,11 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLoaderData } from 'react-router-dom';
 
-interface ProtectedRouteProps {
+interface ProtectedRouteLoaderData {
   isAuth: boolean;
-  redirectPath?: string;
+  redirectPath: string;
 }
 
-export const ProtectedRoute = ({ isAuth, redirectPath = '/' }: ProtectedRouteProps) => {
+export const ProtectedRoute = () => {
+  const { isAuth, redirectPath }: ProtectedRouteLoaderData = useLoaderData();
+
   if (!isAuth) {
     return <Navigate to={redirectPath} replace />;
   }
