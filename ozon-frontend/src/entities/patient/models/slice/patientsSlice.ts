@@ -24,6 +24,5 @@ export const {
   clearPatients,
   setPatientFilterFields,
   resetPatientFilterFields,
-  setPatientSortOrder,
   isPatientFilterOpen,
 } = patientsSlice.actions;

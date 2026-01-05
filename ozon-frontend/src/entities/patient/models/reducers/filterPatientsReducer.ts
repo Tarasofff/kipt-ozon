@@ -1,7 +1,6 @@
-import { SortOrder } from '@/shared/type/sortType';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { PatientsState, PatientsFilterFields } from '../type/patientStateType';
-import { patientsFilterInitialState } from '../slice/patientsInitialState';
+import { patientsInitialState } from '../slice/patientsInitialState';
 
 export const patientFilterReducer = {
   setPatientFilterFields: (state: PatientsState, action: PayloadAction<Partial<PatientsFilterFields>>) => {
@@ -14,9 +13,6 @@ export const patientFilterReducer = {
     state.filter.isOpen = action.payload;
   },
   resetPatientFilterFields: (state: PatientsState) => {
-    state.filter.fields = { ...patientsFilterInitialState.fields };
-  },
-  setPatientSortOrder: (state: PatientsState, action: PayloadAction<SortOrder>) => {
-    // state.filter.sortOrder = action.payload;
+    state.filter.fields = { ...patientsInitialState.filter.fields };
   },
 };

@@ -1,7 +1,6 @@
-import { SORT_ORDER } from '@/shared/constants/sort';
 import { PatientsFilterState, PatientsState } from '../type/patientStateType';
 
-export const patientsFilterInitialState: PatientsFilterState = {
+const patientsFilterInitialState: PatientsFilterState = {
   fields: {
     last_name: '',
     first_name: '',
@@ -11,7 +10,6 @@ export const patientsFilterInitialState: PatientsFilterState = {
     email: '',
     is_active: '',
   },
-  // sortOrder: SORT_ORDER.ASC,
   isOpen: false,
 };
 

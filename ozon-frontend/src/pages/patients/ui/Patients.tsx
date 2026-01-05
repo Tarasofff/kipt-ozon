@@ -9,6 +9,7 @@ export default function Patients() {
   const dispatch = useTypedDispatch();
   const { data, loading, error, filter } = useTypedSelector((state) => state.patients);
 
+  //TODO store
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
 
   return (

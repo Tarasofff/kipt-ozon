@@ -2,6 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { DoctorEntity } from '../type/doctorType';
 import { PaginatedData, PaginationParams } from '@/shared/type/paginationType';
 import { DoctorsState } from '../type/doctorStateType';
+import { doctorsInitialState } from '../slice/doctorsInitialState';
 
 export const fetchDoctorReducer = {
   fetchDoctorsRequest: (state: DoctorsState, action: PayloadAction<PaginationParams>) => {
@@ -20,8 +21,8 @@ export const fetchDoctorReducer = {
     state.error = action.payload;
   },
   clearDoctors: (state: DoctorsState) => {
-    state.data = [];
-    state.offset = 0;
-    state.total = 0;
+    state.data = doctorsInitialState.data;
+    state.offset = doctorsInitialState.offset;
+    state.total = doctorsInitialState.total;
   },
 };
